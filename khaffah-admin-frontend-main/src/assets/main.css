@@ -1,0 +1,882 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Cegah scroll horizontal di mobile */
+html, body {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+#app {
+  overflow-x: hidden;
+  max-width: 100%;
+}
+
+.datatable {
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e5e7eb; /* gray-200 - outline subtle */
+  overflow: hidden; /* Agar border-radius teraplikasi ke semua elemen dalam */
+}
+
+/* Header area - memberikan visual separation */
+.datatable .p-datatable-header {
+  background: #f9fafb; /* gray-50 */
+  border-bottom: 2px solid #e5e7eb;
+  padding: 1rem 1.25rem;
+}
+
+/* Table wrapper */
+.datatable .p-datatable-wrapper {
+  border-radius: 0;
+}
+
+/* ------------------------------------------------ */
+/* --- 1. DATATABLE-SM (Kecil, Penuh Border, Tanpa Hover) --- */
+/* Cocok untuk 8+ field (data padat).
+   - Padding sangat compact.
+   - Font kecil dan ringan.
+   - Border KOMPLIT (atas, bawah, kiri, kanan).
+   - TANPA efek hover.
+*/
+.datatable-sm .p-datatable-table {
+  border-collapse: collapse; /* Pastikan border menyatu */
+}
+
+.datatable-sm {
+  /* Hapus border luar bawaan PrimeVue */
+  border: none !important;
+}
+
+.datatable-sm .p-datatable-thead th {
+  background-color: #f8f8f8; /* Latar belakang header sangat terang */
+  color: #333;
+  font-size: 0.75rem; /* Font kecil */
+  font-weight: 500;
+  padding: 6px 8px; /* Padding sangat minimal */
+  border: 1px solid #e5e7eb; /* Border KOMPLIT */
+}
+
+.datatable-sm .p-datatable-tbody td {
+  font-size: 0.75rem; /* Font kecil */
+  padding: 6px 8px; /* Padding sangat minimal */
+  border: 1px solid #e5e7eb; /* Border KOMPLIT */
+  color: #4b5563;
+}
+
+.datatable-sm .p-datatable-tbody tr {
+  /* Zebra Striping */
+  background-color: transparent;
+}
+.datatable-sm .p-datatable-tbody tr:nth-child(even) {
+  background-color: #fafafa; /* Sangat terang untuk zebra */
+}
+
+/* Tanpa efek hover (sesuai permintaan) */
+.datatable-sm .p-datatable-tbody tr:hover {
+  background-color: transparent !important; /* Matikan efek hover */
+}
+
+
+/* ------------------------------------------------ */
+/* --- 2. DATATABLE (Reguler, Bottom Border, Hover Subtle) --- */
+/* Cocok untuk 5-7 field.
+   - Ukuran reguler.
+   - Border hanya di bagian bawah (bottom).
+   - Hover subtle (menggunakan aksen hijau muda).
+*/
+
+.datatable .p-datatable-thead th {
+  background-color: #f9fafb;
+  color: #1f2937;
+  font-size: 0.875rem; /* Font sedang */
+  font-weight: 500;
+  padding: 10px 14px;
+  border: none;
+  border-bottom: 2px solid #e5e7eb; /* Border bawah tebal */
+}
+
+.datatable .p-datatable-tbody td {
+  font-size: 0.875rem; /* Font sedang */
+  padding: 10px 14px;
+  color: #374151;
+  border: none;
+  border-bottom: 1px solid #e5e7eb; /* Border bawah tipis */
+}
+
+.datatable .p-datatable-tbody tr:nth-child(even) {
+  background-color: #f9fafb; /* Zebra Striping */
+}
+
+/* Hover Subtle menggunakan aksen hijau muda */
+.datatable .p-datatable-tbody tr:hover {
+  background-color: #f0f9f8; /* Warna hijau sangat muda dari #007b6f */
+}
+
+/* Hilangkan border terakhir untuk tampilan lebih bersih */
+.datatable .p-datatable-tbody tr:last-child {
+  border-bottom: none;
+}
+
+
+/* ------------------------------------------------ */
+/* --- 3. DATATABLE-LG (Besar, Distinct, Bottom Border, Aksen Hijau) --- */
+/* Cocok untuk data dengan fokus utama (field sedikit, mudah dibaca).
+   - Padding dan font lebih besar.
+   - Header menggunakan warna aksen (#007b6f).
+   - Hover menggunakan aksen hijau yang lebih jelas.
+*/
+
+/* Header yang JELAS (Distinct) */
+.datatable-lg .p-datatable-thead th {
+  background-color: #007b6f; /* Aksen hijau */
+  color: white; /* Font putih */
+  font-size: 1rem; /* Font besar */
+  font-weight: 700;
+  padding: 14px 18px;
+  border: none;
+  border-bottom: 2px solid #005a51; /* Border bawah gelap untuk kontras */
+}
+
+.datatable-lg .p-datatable-tbody td {
+  font-size: 1rem; /* Font besar */
+  padding: 14px 18px;
+  color: #1f2937;
+  border: none;
+  border-bottom: 1px solid #cce0dd; /* Border bawah agak tebal dan berwarna aksen */
+}
+
+.datatable-lg .p-datatable-tbody tr:nth-child(even) {
+  background-color: #f5fcfb; /* Zebra Striping, sedikit lebih gelap dari putih */
+}
+
+/* Hover yang JELAS (Distinct) */
+.datatable-lg .p-datatable-tbody tr:hover {
+  background-color: #ccf0ed; /* Warna hijau muda yang lebih jelas */
+}
+
+/* Hilangkan border terakhir untuk tampilan lebih bersih */
+.datatable-lg .p-datatable-tbody tr:last-child {
+  border-bottom: none;
+}
+
+/* Paginator Container */
+.p-paginator {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+/* Paginator Buttons */
+.p-paginator .p-paginator-first,
+.p-paginator .p-paginator-prev,
+.p-paginator .p-paginator-next,
+.p-paginator .p-paginator-last {
+  min-width: 2rem;
+  height: 2rem;
+  color: black;
+  border-radius: 3px;
+  background: transparent;
+  border: 1px solid var(--dark-sidebar-light-12);
+  transition: all 0.2s ease-in-out;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.p-paginator .p-paginator-first:not(.p-disabled):hover,
+.p-paginator .p-paginator-prev:not(.p-disabled):hover,
+.p-paginator .p-paginator-next:not(.p-disabled):hover,
+.p-paginator .p-paginator-last:not(.p-disabled):hover {
+  background: var(--dark-sidebar-light-12);
+}
+
+/* Disabled state */
+.p-paginator .p-paginator-first.p-disabled,
+.p-paginator .p-paginator-prev.p-disabled,
+.p-paginator .p-paginator-next.p-disabled,
+.p-paginator .p-paginator-last.p-disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Page Numbers */
+.p-paginator .p-paginator-pages {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.p-paginator .p-paginator-pages .p-paginator-page {
+  min-width: 2rem;
+  height: 2rem;
+  border-radius: 3px;
+  color: black;
+  background: transparent;
+  border: 1px solid transparent;
+  transition: all 0.2s ease-in-out;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 0.875rem;
+}
+
+.p-paginator .p-paginator-pages .p-paginator-page:not(.p-highlight):hover {
+  background: var(--dark-sidebar-light-12);
+  border-color: var(--dark-sidebar-light-12);
+}
+
+/* Active/Highlight page - sudah ada di base, ini enhancement */
+.p-paginator .p-paginator-pages .p-paginator-page.p-highlight {
+  font-weight: 600;
+}
+
+/* Rows per page dropdown - sudah ada di base, ini enhancement */
+.p-paginator .p-dropdown {
+  height: 2rem;
+  min-width: 4rem;
+}
+
+.p-paginator .p-dropdown .p-dropdown-label {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+  color: black;
+}
+
+.p-paginator .p-dropdown .p-dropdown-trigger {
+  color: black;
+  width: 2rem;
+}
+
+/* Current page report */
+.p-paginator .p-paginator-current {
+  color: black;
+  font-size: 0.875rem;
+  padding: 0 0.5rem;
+  white-space: nowrap;
+}
+
+/* Left and Right sections */
+.p-paginator .p-paginator-left,
+.p-paginator .p-paginator-right {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Responsive Paginator */
+@media (max-width: 768px) {
+  .p-paginator {
+    justify-content: center;
+  }
+  
+  .p-paginator .p-paginator-left,
+  .p-paginator .p-paginator-right {
+    width: 100%;
+    justify-content: center;
+    margin: 0.25rem 0;
+  }
+  
+  .p-paginator .p-paginator-pages {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  .p-paginator .p-paginator-current {
+    width: 100%;
+    text-align: center;
+    margin: 0.5rem 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .p-paginator .p-paginator-first,
+  .p-paginator .p-paginator-prev,
+  .p-paginator .p-paginator-next,
+  .p-paginator .p-paginator-last,
+  .p-paginator .p-paginator-pages .p-paginator-page {
+    min-width: 1.75rem;
+    height: 1.75rem;
+    font-size: 0.75rem;
+  }
+}
+
+/* Dropdown Panel styling */
+.p-dropdown-panel {
+  background: var(--dark-sidebar-light-6);
+  border: 1px solid var(--dark-sidebar-light-12);
+  border-radius: 3px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.p-dropdown-panel .p-dropdown-items {
+  padding: 0.25rem 0;
+}
+
+.p-dropdown-panel .p-dropdown-item {
+  padding: 0.5rem 1rem;
+  color: black;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.p-dropdown-panel .p-dropdown-item:hover {
+  background: var(--dark-sidebar-light-12);
+}
+
+.p-dropdown-panel .p-dropdown-item.p-highlight {
+  background: var(--dark-sidebar-light-12);
+  color: black;
+}
+
+
+.columns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px; /* <-- jarak antar column */
+}
+
+.column {
+  flex: 0 0 auto;
+  padding: 0; /* biarkan saja 0, gap yang atur jarak */
+  margin-bottom: 10px;
+}
+
+/* Width untuk is-x */
+.column.is-1 { flex-basis: calc(8.333333% - 10px); max-width: calc(8.333333% - 10px); }
+.column.is-2 { flex-basis: calc(16.666667% - 10px); max-width: calc(16.666667% - 10px); }
+.column.is-3 { flex-basis: calc(25% - 10px); max-width: calc(25% - 10px); }
+.column.is-4 { flex-basis: calc(33.333333% - 10px); max-width: calc(33.333333% - 10px); }
+.column.is-5 { flex-basis: calc(41.666667% - 10px); max-width: calc(41.666667% - 10px); }
+.column.is-6 { flex-basis: calc(50% - 10px); max-width: calc(50% - 10px); }
+.column.is-7 { flex-basis: calc(58.333333% - 10px); max-width: calc(58.333333% - 10px); }
+.column.is-8 { flex-basis: calc(66.666667% - 10px); max-width: calc(66.666667% - 10px); }
+.column.is-9 { flex-basis: calc(75% - 10px); max-width: calc(75% - 10px); }
+.column.is-10 { flex-basis: calc(83.333333% - 10px); max-width: calc(83.333333% - 10px); }
+.column.is-11 { flex-basis: calc(91.666667% - 10px); max-width: calc(91.666667% - 10px); }
+.column.is-12 { flex-basis: calc(100% - 10px); max-width: calc(100% - 10px); }
+
+.is-flex-center {
+  display: flex;
+  align-items: center;
+}
+
+/* ============================================
+   INPUT STYLES - KAFFAH ADMIN
+   Haji & Umrah Management System
+   ============================================ */
+
+/* Base Input Styles */
+.input,
+.textarea,
+.select select {
+  width: 100%;
+  padding: 0.625rem 1rem; /* py-2.5 px-4 */
+  font-size: 0.875rem; /* 14px */
+  font-weight: 400;
+  line-height: 1.5;
+  color: #1a3a37;
+  background-color: #ffffff;
+  border: 1px solid #d1d5db; /* gray-300 */
+  border-radius: 0.5rem; /* 8px - rounded-lg */
+  outline: none;
+  transition: all 0.2s ease-in-out;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.input::placeholder,
+.textarea::placeholder {
+  color: #9ca3af; /* gray-400 */
+}
+
+/* Focus State */
+.input:focus,
+.textarea:focus,
+.select select:focus {
+  border-color: transparent;
+  ring: 2px solid #007b6f;
+  box-shadow: 0 0 0 2px #007b6f;
+}
+
+/* Hover State */
+.input:hover:not(:disabled),
+.textarea:hover:not(:disabled),
+.select select:hover:not(:disabled) {
+  border-color: #007b6f;
+}
+
+/* Disabled State */
+.input:disabled,
+.textarea:disabled,
+.select select:disabled {
+  background-color: #f3f4f6; /* gray-100 */
+  color: #9ca3af; /* gray-400 */
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Read-only State */
+.input:read-only,
+.textarea:read-only {
+  background-color: #f9fafb; /* gray-50 */
+  color: #6b7280; /* gray-500 */
+  cursor: default;
+}
+
+/* ============================================
+   SIZE VARIATIONS
+   ============================================ */
+
+/* Small Input */
+.input-sm {
+  padding: 0.5rem 0.75rem; /* py-2 px-3 */
+  font-size: 0.75rem; /* 12px */
+  border-radius: 0.375rem; /* 6px - rounded-md */
+}
+
+/* Default Input - Already defined in base */
+.input-md {
+  padding: 0.625rem 1rem; /* py-2.5 px-4 */
+  font-size: 0.875rem; /* 14px */
+  border-radius: 0.5rem; /* 8px - rounded-lg */
+}
+
+/* Large Input */
+.input-lg {
+  padding: 0.75rem 1.25rem; /* py-3 px-5 */
+  font-size: 1rem; /* 16px */
+  border-radius: 0.5rem; /* 8px - rounded-lg */
+}
+
+/* ============================================
+   INPUT WITH ICONS
+   ============================================ */
+
+/* Input Group Container */
+.input-group {
+  position: relative;
+  display: flex;
+  width: 100%;
+}
+
+/* Icon Left */
+.input-icon-left {
+  padding-left: 2.5rem; /* pl-10 */
+}
+
+.input-icon-left-sm {
+  padding-left: 2rem; /* pl-8 */
+}
+
+.input-icon-left-lg {
+  padding-left: 3rem; /* pl-12 */
+}
+
+/* Icon Right */
+.input-icon-right {
+  padding-right: 2.5rem; /* pr-10 */
+}
+
+.input-icon-right-sm {
+  padding-right: 2rem; /* pr-8 */
+}
+
+.input-icon-right-lg {
+  padding-right: 3rem; /* pr-12 */
+}
+
+/* Icon Wrapper */
+.input-icon {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  pointer-events: none;
+  color: #9ca3af; /* gray-400 */
+  transition: color 0.2s ease-in-out;
+}
+
+.input-icon-left-wrapper {
+  left: 0;
+  top: 0;
+  bottom: 0;
+  padding-left: 0.75rem; /* pl-3 */
+}
+
+.input-icon-right-wrapper {
+  right: 0;
+  top: 0;
+  bottom: 0;
+  padding-right: 0.75rem; /* pr-3 */
+}
+
+/* Icon sizes */
+.input-icon svg {
+  width: 1.25rem; /* 20px */
+  height: 1.25rem;
+}
+
+.input-icon-sm svg {
+  width: 1rem; /* 16px */
+  height: 1rem;
+}
+
+.input-icon-lg svg {
+  width: 1.5rem; /* 24px */
+  height: 1.5rem;
+}
+
+/* Icon color change on focus */
+.input:focus ~ .input-icon,
+.input:focus + .input-icon {
+  color: #007b6f;
+}
+
+/* ============================================
+   VALIDATION STATES
+   ============================================ */
+
+/* Success State */
+.input.is-success,
+.textarea.is-success,
+.select select.is-success {
+  border-color: #10b981;
+  background-color: #f0fdf4; /* green-50 */
+}
+
+.input.is-success:focus,
+.textarea.is-success:focus,
+.select select.is-success:focus {
+  box-shadow: 0 0 0 2px #10b981;
+}
+
+/* Error State */
+.input.is-error,
+.textarea.is-error,
+.select select.is-error,
+.input.is-danger,
+.textarea.is-danger,
+.select select.is-danger {
+  border-color: #ef4444;
+  background-color: #fef2f2; /* red-50 */
+}
+
+.input.is-error:focus,
+.textarea.is-error:focus,
+.select select.is-error:focus,
+.input.is-danger:focus,
+.textarea.is-danger:focus,
+.select select.is-danger:focus {
+  box-shadow: 0 0 0 2px #ef4444;
+}
+
+/* Warning State */
+.input.is-warning,
+.textarea.is-warning,
+.select select.is-warning {
+  border-color: #f59e0b;
+  background-color: #fffbeb; /* amber-50 */
+}
+
+.input.is-warning:focus,
+.textarea.is-warning:focus,
+.select select.is-warning:focus {
+  box-shadow: 0 0 0 2px #f59e0b;
+}
+
+/* Info State */
+.input.is-info,
+.textarea.is-info,
+.select select.is-info {
+  border-color: #007b6f;
+  background-color: #f0f9f8; /* teal-50 */
+}
+
+.input.is-info:focus,
+.textarea.is-info:focus,
+.select select.is-info:focus {
+  box-shadow: 0 0 0 2px #007b6f;
+}
+
+/* ============================================
+   FIELD LABEL
+   ============================================ */
+
+.field-label,
+.label {
+  display: block;
+  font-size: 0.875rem; /* 14px */
+  font-weight: 500;
+  color: #4b5563; /* gray-600 */
+  margin-bottom: 0.5rem; /* 8px */
+}
+
+.field-label.is-required::after,
+.label.is-required::after {
+  content: '*';
+  color: #ef4444;
+  margin-left: 0.25rem;
+}
+
+/* ============================================
+   HELP TEXT
+   ============================================ */
+
+.help {
+  display: block;
+  font-size: 0.75rem; /* 12px */
+  margin-top: 0.375rem; /* 6px */
+  color: #6b7280; /* gray-500 */
+}
+
+.help.is-success {
+  color: #10b981;
+}
+
+.help.is-error,
+.help.is-danger {
+  color: #ef4444;
+}
+
+.help.is-warning {
+  color: #f59e0b;
+}
+
+.help.is-info {
+  color: #007b6f;
+}
+
+/* ============================================
+   FIELD WRAPPER
+   ============================================ */
+
+.field {
+  margin-bottom: 1rem; /* 16px */
+}
+
+.field:last-child {
+  margin-bottom: 0;
+}
+
+/* Field with Addons */
+.field.has-addons {
+  display: flex;
+  gap: 0;
+}
+
+.field.has-addons .input,
+.field.has-addons .select select,
+.field.has-addons .button {
+  border-radius: 0;
+}
+
+.field.has-addons .input:first-child,
+.field.has-addons .select:first-child select,
+.field.has-addons .button:first-child {
+  border-top-left-radius: 0.5rem;
+  border-bottom-left-radius: 0.5rem;
+}
+
+.field.has-addons .input:last-child,
+.field.has-addons .select:last-child select,
+.field.has-addons .button:last-child {
+  border-top-right-radius: 0.5rem;
+  border-bottom-right-radius: 0.5rem;
+}
+
+.field.has-addons > *:not(:first-child) {
+  margin-left: -1px;
+}
+
+/* ============================================
+   SELECT DROPDOWN
+   ============================================ */
+
+.select {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+}
+
+.select::after {
+  content: '';
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 5px solid #6b7280;
+  pointer-events: none;
+}
+
+.select select {
+  appearance: none;
+  padding-right: 2.5rem; /* Space for arrow */
+  cursor: pointer;
+}
+
+.select select:focus ~ ::after {
+  border-top-color: #007b6f;
+}
+
+/* Select sizes */
+.select.is-small select {
+  padding: 0.5rem 2rem 0.5rem 0.75rem;
+  font-size: 0.75rem;
+  border-radius: 0.375rem;
+}
+
+.select.is-large select {
+  padding: 0.75rem 3rem 0.75rem 1.25rem;
+  font-size: 1rem;
+  border-radius: 0.5rem;
+}
+
+/* ============================================
+   TEXTAREA
+   ============================================ */
+
+.textarea {
+  min-height: 6rem; /* 96px */
+  resize: vertical;
+  line-height: 1.5;
+}
+
+.textarea.is-small {
+  min-height: 4rem; /* 64px */
+  padding: 0.5rem 0.75rem;
+  font-size: 0.75rem;
+  border-radius: 0.375rem;
+}
+
+.textarea.is-large {
+  min-height: 8rem; /* 128px */
+  padding: 0.75rem 1.25rem;
+  font-size: 1rem;
+  border-radius: 0.5rem;
+}
+
+/* Fixed size textarea */
+.textarea.is-fixed {
+  resize: none;
+}
+
+/* ============================================
+   CHECKBOX & RADIO
+   ============================================ */
+
+.checkbox,
+.radio {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+  color: #4b5563;
+  user-select: none;
+}
+
+.checkbox input[type="checkbox"],
+.radio input[type="radio"] {
+  width: 1rem;
+  height: 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.radio input[type="radio"] {
+  border-radius: 50%;
+}
+
+.checkbox input[type="checkbox"]:checked,
+.radio input[type="radio"]:checked {
+  background-color: #007b6f;
+  border-color: #007b6f;
+}
+
+.checkbox input[type="checkbox"]:focus,
+.radio input[type="radio"]:focus {
+  box-shadow: 0 0 0 2px #007b6f;
+}
+
+.checkbox:hover input[type="checkbox"],
+.radio:hover input[type="radio"] {
+  border-color: #007b6f;
+}
+
+/* Disabled state */
+.checkbox input[type="checkbox"]:disabled,
+.radio input[type="radio"]:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ============================================
+   FILE INPUT
+   ============================================ */
+
+.file-input {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+}
+
+.file-input input[type="file"] {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+.file-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #4b5563;
+  background-color: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.file-label:hover {
+  background-color: #f9fafb;
+  border-color: #007b6f;
+  color: #007b6f;
+}
+
+.file-input input[type="file"]:focus + .file-label {
+  box-shadow: 0 0 0 2px #007b6f;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+
+@media (max-width: 768px) {
+  .input,
+  .textarea,
+  .select select {
+    font-size: 1rem; /* 16px - Prevent zoom on iOS */
+  }
+  
+  .input-sm {
+    font-size: 0.875rem; /* 14px */
+  }
+}

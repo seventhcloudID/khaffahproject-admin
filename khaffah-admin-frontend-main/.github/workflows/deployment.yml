@@ -1,0 +1,49 @@
+name: Deploy with Docker Compose
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Create .env file
+        run: |
+          echo "CLOUDFLARE_TUNNEL_TOKEN=${{ secrets.CLOUDFLARE_TUNNEL_TOKEN }}" > .env
+
+      - name: Build and start services
+        run: |
+          docker-compose up -d --build
+
+      - name: Wait for services to be healthy
+        run: |
+          echo "Waiting for services to start..."
+          sleep 30
+          docker-compose ps
+
+      - name: Check service logs
+        if: always()
+        run: |
+          echo "=== App Logs ==="
+          docker-compose logs app
+          echo "=== Cloudflared Logs ==="
+          docker-compose logs cloudflared
+
+      - name: Verify services are running
+        run: |
+          if [ "$(docker-compose ps -q | wc -l)" -eq 0 ]; then
+            echo "No services are running!"
+            exit 1
+          fi
+          echo "All services are running successfully"

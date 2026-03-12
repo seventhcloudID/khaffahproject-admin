@@ -1,0 +1,19 @@
+# Dependencies
+node_modules/
+
+# Build
+dist/
+dist-ssr/
+*.local
+
+# Env
+.env
+.env.*
+
+# Logs & cache
+*.log
+.DS_Store
+.idea
+.vscode/
+*.tsbuildinfo
+.eslintcache
