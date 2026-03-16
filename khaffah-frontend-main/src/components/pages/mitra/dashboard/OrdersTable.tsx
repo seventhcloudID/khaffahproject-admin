@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Table,
   TableBody,
@@ -35,6 +35,8 @@ export type MitraOrderRow = {
   id: string;
   kode_transaksi: string;
   name: string;
+  /** Nama pemesan (untuk pencarian) */
+  namaPemesan?: string;
   status: "Proses" | "Belum Lunas" | "Selesai";
   /** Nama status pembayaran dari backend (Belum Bayar, Lunas, dll) */
   statusPembayaranNama?: string;
@@ -45,6 +47,18 @@ export type MitraOrderRow = {
   priceRaw: number;
   price: string;
 };
+
+/** Format tanggal ISO ke tampilan singkat (dd MMM yyyy), fallback ke raw string */
+function formatTanggalShort(isoOrDash: string): string {
+  if (!isoOrDash || isoOrDash === "-") return "-";
+  const d = new Date(isoOrDash);
+  if (!Number.isFinite(d.getTime())) return isoOrDash;
+  return d.toLocaleDateString("id-ID", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+}
 
 // Status Badge Component
 function StatusBadge({ status }: { status: MitraOrderRow["status"] }) {
@@ -111,7 +125,7 @@ export function OrdersTable({
           (r.name && r.name.toLowerCase().includes(q)) ||
           (r.id && r.id.toLowerCase().includes(q)) ||
           (r.kode_transaksi && r.kode_transaksi.toLowerCase().includes(q)) ||
-          (r as { customer?: { name?: string } }).customer?.name?.toLowerCase().includes(q)
+          (r.namaPemesan && r.namaPemesan.toLowerCase().includes(q))
       );
     }
 
@@ -144,10 +158,9 @@ export function OrdersTable({
     startIndex + itemsPerPage
   );
 
-  // Reset page when filters change
-  useMemo(() => {
+  // Reset ke halaman 1 saat filter/sort/search berubah
+  useEffect(() => {
     setCurrentPage(1);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [statusFilter, sortBy, searchQuery, itemsPerPage]);
 
   const hasActiveFilters = statusFilter || sortBy || searchQuery;
@@ -269,10 +282,10 @@ export function OrdersTable({
                     {r.days} Hari
                   </TableCell>
                   <TableCell className="px-4 py-3 text-slate-600">
-                    {r.depart}
+                    {formatTanggalShort(r.depart)}
                   </TableCell>
                   <TableCell className="px-4 py-3 text-slate-600">
-                    {r.returnDate}
+                    {formatTanggalShort(r.returnDate)}
                   </TableCell>
                   <TableCell className="px-4 py-3 text-slate-600 font-medium">
                     {r.pax}

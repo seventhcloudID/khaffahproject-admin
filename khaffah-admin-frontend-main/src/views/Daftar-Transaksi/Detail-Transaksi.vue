@@ -27,162 +27,371 @@
 
       <div v-if="loading" class="text-center py-12 text-gray-500">Memuat detail...</div>
       <div v-else-if="error" class="text-center py-12 text-red-600">{{ error }}</div>
-      <div v-else-if="transactionDetail" class="space-y-4">
-        <h1 class="text-xl font-semibold mb-4">{{ pageTitle }}</h1>
+      <div v-else-if="transactionDetail" class="space-y-6">
+        <h1 class="text-xl font-semibold text-gray-900">{{ pageTitle }}</h1>
 
-        <!-- Info utama -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <div class="text-sm text-gray-500">No. Pesanan</div>
-            <div class="font-medium">{{ transactionDetail.kode_transaksi }}</div>
+        <!-- Info utama — card agar mudah dibaca -->
+        <div class="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+          <div class="px-5 py-4 bg-gray-50 border-b border-gray-200">
+            <h2 class="text-sm font-semibold text-gray-700 uppercase tracking-wide">Informasi Pesanan</h2>
           </div>
-          <div>
-            <div class="text-sm text-gray-500">Tanggal Pembelian</div>
-            <div class="font-medium">
-              {{ transactionDetail.tgl_pemesanan ? H.formatDate(transactionDetail.tgl_pemesanan, 'DD/MM/YYYY') : '-' }}
-              {{ transactionDetail.tgl_pemesanan ? H.formatDate(transactionDetail.tgl_pemesanan, 'HH:mm') + ' WIB' : '' }}
-            </div>
-          </div>
-          <div>
-            <div class="text-sm text-gray-500">Pemesan</div>
-            <div class="font-medium">{{ transactionDetail.gelar }} {{ transactionDetail.nama_lengkap }}</div>
-          </div>
-          <div>
-            <div class="text-sm text-gray-500">No. Whatsapp</div>
-            <div class="font-medium flex items-center gap-2">
-              {{ transactionDetail.no_whatsapp }}
-              <a
-                v-if="transactionDetail.no_whatsapp"
-                :href="`https://wa.me/${String(transactionDetail.no_whatsapp).replace(/^0/, '62').replace(/\D/g, '')}`"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="inline-flex items-center justify-center w-7 h-7 bg-green-500 hover:bg-green-600 rounded-full transition-colors"
-                title="Chat via WhatsApp"
-              >
-                <i class="fab fa-whatsapp text-white text-sm"></i>
-              </a>
-            </div>
-          </div>
-          <div>
-            <div class="text-sm text-gray-500">Tipe / Nama Paket</div>
-            <div class="font-medium">{{ transactionDetail.nama_paket }}</div>
-            <div class="text-xs text-gray-500">{{ tipePaketLabel }}</div>
-          </div>
-          <div v-if="detailType === 'haji' && transactionDetail.alamat_lengkap" class="sm:col-span-2">
-            <div class="text-sm text-gray-500">Alamat Lengkap</div>
-            <div class="font-medium">{{ transactionDetail.alamat_lengkap }}</div>
-          </div>
-          <div>
-            <div class="text-sm text-gray-500">Status</div>
-            <div class="font-medium">{{ transactionDetail.status_nama ?? transactionDetail.nama_status }}</div>
-          </div>
-          <div v-if="transactionDetail.deskripsi" class="sm:col-span-2">
-            <div class="text-sm text-gray-500">Catatan</div>
-            <div class="font-medium">{{ transactionDetail.deskripsi }}</div>
+          <div class="p-5">
+            <dl class="space-y-5">
+              <div class="flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-4">
+                <dt class="text-sm font-medium text-gray-500 shrink-0 sm:w-40">No. Pesanan</dt>
+                <dd class="text-base font-semibold text-gray-900 font-mono">{{ transactionDetail.kode_transaksi }}</dd>
+              </div>
+              <div class="flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-4">
+                <dt class="text-sm font-medium text-gray-500 shrink-0 sm:w-40">Tanggal Pembelian</dt>
+                <dd class="text-base text-gray-900">
+                  <span v-if="transactionDetail.tgl_pemesanan">
+                    {{ H.formatDate(transactionDetail.tgl_pemesanan, 'DD/MM/YYYY') }}
+                    <span class="text-gray-500 font-normal">· {{ H.formatDate(transactionDetail.tgl_pemesanan, 'HH:mm') }} WIB</span>
+                  </span>
+                  <span v-else class="text-gray-500">–</span>
+                </dd>
+              </div>
+              <div class="flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-4">
+                <dt class="text-sm font-medium text-gray-500 shrink-0 sm:w-40">Pemesan</dt>
+                <dd class="text-base font-medium text-gray-900">{{ [transactionDetail.gelar, transactionDetail.nama_lengkap].filter(Boolean).join(' ') || '–' }}</dd>
+              </div>
+              <div class="flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-4">
+                <dt class="text-sm font-medium text-gray-500 shrink-0 sm:w-40">No. WhatsApp</dt>
+                <dd class="text-base text-gray-900 flex items-center gap-2">
+                  <span>{{ transactionDetail.no_whatsapp || '–' }}</span>
+                  <a
+                    v-if="transactionDetail.no_whatsapp"
+                    :href="`https://wa.me/${String(transactionDetail.no_whatsapp).replace(/^0/, '62').replace(/\D/g, '')}`"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="inline-flex items-center justify-center w-8 h-8 bg-green-500 hover:bg-green-600 rounded-lg transition-colors text-white"
+                    title="Chat via WhatsApp"
+                  >
+                    <i class="fab fa-whatsapp text-sm"></i>
+                  </a>
+                </dd>
+              </div>
+              <div class="flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-4">
+                <dt class="text-sm font-medium text-gray-500 shrink-0 sm:w-40">Tipe / Nama Paket</dt>
+                <dd class="text-base">
+                  <span class="font-semibold text-gray-900">{{ transactionDetail.nama_paket || '–' }}</span>
+                  <p v-if="tipePaketLabel" class="text-sm text-gray-500 mt-0.5">{{ tipePaketLabel }}</p>
+                </dd>
+              </div>
+              <div v-if="detailType === 'haji' && transactionDetail.alamat_lengkap" class="flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-4">
+                <dt class="text-sm font-medium text-gray-500 shrink-0 sm:w-40">Alamat Lengkap</dt>
+                <dd class="text-base text-gray-900">{{ transactionDetail.alamat_lengkap }}</dd>
+              </div>
+              <div class="flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-4">
+                <dt class="text-sm font-medium text-gray-500 shrink-0 sm:w-40">Status Transaksi</dt>
+                <dd>
+                  <span class="inline-flex items-center px-3 py-1 rounded-lg text-sm font-medium bg-amber-100 text-amber-800">
+                    {{ transactionDetail.status_nama ?? transactionDetail.nama_status ?? '–' }}
+                  </span>
+                </dd>
+              </div>
+              <div class="flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-4">
+                <dt class="text-sm font-medium text-gray-500 shrink-0 sm:w-40">Status Pembayaran</dt>
+                <dd>
+                  <span class="inline-flex items-center px-3 py-1 rounded-lg text-sm font-medium bg-gray-100 text-gray-800">
+                    {{ transactionDetail.status_pembayaran_nama ?? '–' }}
+                  </span>
+                </dd>
+              </div>
+              <div v-if="transactionDetail.deskripsi" class="flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-4">
+                <dt class="text-sm font-medium text-gray-500 shrink-0 sm:w-40">Catatan</dt>
+                <dd class="text-base text-gray-900">{{ transactionDetail.deskripsi }}</dd>
+              </div>
+            </dl>
           </div>
         </div>
 
-        <div v-if="transactionDetail.snapshot_produk" class="pt-4 border-t space-y-4">
-          <!-- ========== CUSTOM (Permintaan Custom / LA) ========== -->
+        <div v-if="transactionDetail.snapshot_produk" class="space-y-6">
+          <!-- ========== CUSTOM (Permintaan Custom / LA / Komponen) ========== -->
           <template v-if="detailType === 'custom'">
-            <div v-if="tanggalProgram" class="p-3 bg-gray-50 rounded">
-              <div class="font-medium mb-2">Tanggal Program</div>
-              <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm text-gray-700">
-                <div>
-                  <span class="text-gray-500 block text-xs">Tanggal Keberangkatan</span>
-                  <span>{{ H.formatDate(tanggalProgram.departureDate, 'DD/MM/YYYY') || '-' }}</span>
-                </div>
-                <div>
-                  <span class="text-gray-500 block text-xs">Durasi</span>
-                  <span>{{ durasiHari }} Hari</span>
-                </div>
-                <div>
-                  <span class="text-gray-500 block text-xs">Tanggal Kepulangan</span>
-                  <span>{{ H.formatDate(tanggalProgram.returnDate, 'DD/MM/YYYY') || '-' }}</span>
-                </div>
+            <div v-if="hasTanggalProgram" class="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+              <div class="px-5 py-3 bg-gray-50 border-b border-gray-200">
+                <h2 class="text-sm font-semibold text-gray-700 uppercase tracking-wide">Tanggal Program</h2>
               </div>
-            </div>
-            <div v-if="transactionDetail.snapshot_produk.data_hotel" class="p-3 bg-gray-50 rounded">
-              <div class="font-medium mb-2">Data Hotel</div>
-              <div class="space-y-1 text-sm text-gray-700">
-                <p>
-                  <span class="text-gray-500">Hotel Mekkah:</span>
-                  {{ (dh.hotelMekkah ?? dh.hotel_mekkah) || '-' }}
-                  <span v-if="(dh.hotelMekkahHarga ?? dh.hotel_mekkah_harga) != null" class="text-gray-600">({{ H.formatRupiah(dh.hotelMekkahHarga ?? dh.hotel_mekkah_harga) }})</span>
-                </p>
-                <p>
-                  <span class="text-gray-500">Hotel Madinah:</span>
-                  {{ (dh.hotelMadinah ?? dh.hotel_madinah) || '-' }}
-                  <span v-if="(dh.hotelMadinahHarga ?? dh.hotel_madinah_harga) != null" class="text-gray-600">({{ H.formatRupiah(dh.hotelMadinahHarga ?? dh.hotel_madinah_harga) }})</span>
-                </p>
-                <p><span class="text-gray-500">Kuota Kamar:</span> {{ (dh.kuotaKamar ?? dh.kuota_kamar) != null ? (dh.kuotaKamar ?? dh.kuota_kamar) : '-' }}</p>
-              </div>
-            </div>
-            <div v-if="transactionDetail.snapshot_produk.data_keberangkatan" class="p-3 bg-gray-50 rounded">
-              <div class="font-medium mb-2">Data Keberangkatan</div>
-              <div class="space-y-1 text-sm text-gray-700">
-                <p><span class="text-gray-500">Maskapai:</span> {{ (transactionDetail.snapshot_produk.data_keberangkatan.namaMaskapai ?? transactionDetail.snapshot_produk.data_keberangkatan.nama_maskapai) || '-' }}</p>
-                <p><span class="text-gray-500">Bandara Keberangkatan:</span> {{ (transactionDetail.snapshot_produk.data_keberangkatan.bandaraKeberangkatan ?? transactionDetail.snapshot_produk.data_keberangkatan.bandara_keberangkatan) || '-' }}</p>
-                <p><span class="text-gray-500">Bandara Kepulangan:</span> {{ (transactionDetail.snapshot_produk.data_keberangkatan.bandaraKepulangan ?? transactionDetail.snapshot_produk.data_keberangkatan.bandara_kepulangan) || '-' }}</p>
-              </div>
-            </div>
-            <div v-if="layananWajibItems.length > 0" class="p-3 bg-gray-50 rounded">
-              <div class="font-medium mb-2">Layanan Wajib</div>
-              <div class="space-y-2 text-sm text-gray-700">
-                <div v-for="(item, idx) in layananWajibItems" :key="'wajib-' + idx" class="py-2 border-b border-gray-200 last:border-0">
-                  <div class="flex justify-between items-center">
-                    <span>{{ item.nama }}</span>
-                    <span class="font-medium text-gray-900 whitespace-nowrap">{{ H.formatRupiah(item.value) }}</span>
+              <div class="p-5">
+                <dl class="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
+                  <div>
+                    <dt class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Check-in</dt>
+                    <dd class="text-base font-medium text-gray-900">{{ H.formatDate(tanggalProgram.departureDate, 'DD/MM/YYYY') || '–' }}</dd>
                   </div>
-                  <p class="text-xs text-gray-500 mt-0.5">{{ H.formatRupiah(item.harga) }} {{ item.satuan || '/pax' }} × {{ item.multLabel }} = {{ H.formatRupiah(item.value) }}</p>
+                  <div>
+                    <dt class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Durasi</dt>
+                    <dd class="text-base font-medium text-gray-900">{{ durasiHari }} malam</dd>
+                  </div>
+                  <div>
+                    <dt class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Check-out</dt>
+                    <dd class="text-base font-medium text-gray-900">{{ H.formatDate(tanggalProgram.returnDate, 'DD/MM/YYYY') || '–' }}</dd>
+                  </div>
+                </dl>
+              </div>
+            </div>
+            <div v-if="hasDataHotel" class="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+              <div class="px-5 py-3 bg-gray-50 border-b border-gray-200">
+                <h2 class="text-sm font-semibold text-gray-700 uppercase tracking-wide">Data Hotel</h2>
+              </div>
+              <div class="p-5">
+              <div class="space-y-1 text-sm text-gray-700">
+                <p v-if="(dh.hotelMekkah ?? dh.hotel_mekkah)">
+                  <span class="text-gray-500">Hotel:</span> {{ (dh.hotelMekkah ?? dh.hotel_mekkah) }}
+                  <span v-if="(dh.hotelMekkahHarga ?? dh.hotel_mekkah_harga) != null && !roomDetails.length" class="text-gray-600">({{ H.formatRupiah(dh.hotelMekkahHarga ?? dh.hotel_mekkah_harga) }}/malam)</span>
+                </p>
+                <p v-if="(dh.hotelMadinah ?? dh.hotel_madinah) && !roomDetails.length">
+                  <span class="text-gray-500">Hotel Madinah:</span> {{ (dh.hotelMadinah ?? dh.hotel_madinah) }}
+                  <span v-if="(dh.hotelMadinahHarga ?? dh.hotel_madinah_harga) != null" class="text-gray-600">({{ H.formatRupiah(dh.hotelMadinahHarga ?? dh.hotel_madinah_harga) }}/malam)</span>
+                </p>
+                <p v-if="(dh.kuotaKamar ?? dh.kuota_kamar) != null && !roomDetails.length"><span class="text-gray-500">Kuota Kamar:</span> {{ dh.kuotaKamar ?? dh.kuota_kamar }}</p>
+              </div>
+              <!-- Tabel detail kamar (Transaksi Komponen Hotel) -->
+              <div v-if="roomDetails.length > 0" class="mt-3 overflow-x-auto rounded-lg border border-gray-200">
+                <table class="min-w-full text-sm">
+                  <thead class="bg-gray-100">
+                    <tr>
+                      <th class="px-3 py-2 text-left font-semibold text-gray-700">Tipe Kamar</th>
+                      <th class="px-3 py-2 text-center font-semibold text-gray-700">Jumlah</th>
+                      <th class="px-3 py-2 text-right font-semibold text-gray-700">Harga / malam</th>
+                      <th class="px-3 py-2 text-right font-semibold text-gray-700">Subtotal</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-gray-100">
+                    <tr v-for="(rd, idx) in roomDetails" :key="idx" class="bg-white">
+                      <td class="px-3 py-2 text-gray-900">{{ rd.roomTypeName ?? rd.room_type_name ?? 'Kamar' }}</td>
+                      <td class="px-3 py-2 text-center text-gray-700">{{ rd.qty ?? 0 }}</td>
+                      <td class="px-3 py-2 text-right text-gray-700">{{ H.formatRupiah(rd.hargaPerMalam ?? rd.harga_per_malam ?? 0) }}</td>
+                      <td class="px-3 py-2 text-right font-medium text-gray-900">{{ H.formatRupiah((Number(rd.qty) || 0) * (Number(rd.hargaPerMalam ?? rd.harga_per_malam) || 0) * durasiHariDisplay) }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+                <p class="px-3 py-2 text-xs text-gray-500 bg-gray-50 border-t border-gray-100">Jumlah malam: {{ durasiHariDisplay }} malam</p>
+              </div>
+              </div>
+            </div>
+            <div v-if="hasDataKeberangkatan" class="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+              <div class="px-5 py-3 bg-gray-50 border-b border-gray-200">
+                <h2 class="text-sm font-semibold text-gray-700 uppercase tracking-wide">Data Keberangkatan</h2>
+              </div>
+              <div class="p-5">
+                <dl class="space-y-3">
+                  <div v-if="String((dataKeberangkatan && (dataKeberangkatan.namaMaskapai ?? dataKeberangkatan.nama_maskapai)) || '').trim()">
+                    <dt class="text-xs text-gray-500 mb-0.5">Maskapai</dt>
+                    <dd class="text-base text-gray-900">{{ (dataKeberangkatan?.namaMaskapai ?? dataKeberangkatan?.nama_maskapai) || '–' }}</dd>
+                  </div>
+                  <div v-if="String((dataKeberangkatan && (dataKeberangkatan.bandaraKeberangkatan ?? dataKeberangkatan.bandara_keberangkatan)) || '').trim()">
+                    <dt class="text-xs text-gray-500 mb-0.5">Bandara Keberangkatan</dt>
+                    <dd class="text-base text-gray-900">{{ (dataKeberangkatan?.bandaraKeberangkatan ?? dataKeberangkatan?.bandara_keberangkatan) || '–' }}</dd>
+                  </div>
+                  <div v-if="String((dataKeberangkatan && (dataKeberangkatan.bandaraKepulangan ?? dataKeberangkatan.bandara_kepulangan)) || '').trim()">
+                    <dt class="text-xs text-gray-500 mb-0.5">Bandara Kepulangan</dt>
+                    <dd class="text-base text-gray-900">{{ (dataKeberangkatan?.bandaraKepulangan ?? dataKeberangkatan?.bandara_kepulangan) || '–' }}</dd>
+                  </div>
+                </dl>
+              </div>
+            </div>
+            <!-- Komponen Visa -->
+            <div v-if="transactionDetail.snapshot_produk?.data_visa && Object.keys(transactionDetail.snapshot_produk.data_visa).length" class="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+              <div class="px-5 py-3 bg-gray-50 border-b border-gray-200">
+                <h2 class="text-sm font-semibold text-gray-700 uppercase tracking-wide">Data Visa</h2>
+              </div>
+              <div class="p-5">
+                <dl class="space-y-3 text-sm">
+                  <div v-if="transactionDetail.snapshot_produk.data_visa.layanan_nama">
+                    <dt class="text-xs text-gray-500 mb-0.5">Layanan</dt>
+                    <dd class="text-base text-gray-900">{{ transactionDetail.snapshot_produk.data_visa.layanan_nama }}</dd>
+                  </div>
+                  <div v-if="transactionDetail.snapshot_produk.data_visa.jumlah_visa != null">
+                    <dt class="text-xs text-gray-500 mb-0.5">Jumlah Visa</dt>
+                    <dd class="text-base text-gray-900">{{ transactionDetail.snapshot_produk.data_visa.jumlah_visa }}</dd>
+                  </div>
+                  <div v-if="transactionDetail.snapshot_produk.data_visa.harga_per_pax != null">
+                    <dt class="text-xs text-gray-500 mb-0.5">Harga / pax</dt>
+                    <dd class="text-base text-gray-900">{{ H.formatRupiah(transactionDetail.snapshot_produk.data_visa.harga_per_pax) }}</dd>
+                  </div>
+                  <div v-if="transactionDetail.snapshot_produk.data_visa.total != null">
+                    <dt class="text-xs text-gray-500 mb-0.5">Total</dt>
+                    <dd class="text-base font-semibold text-gray-900">{{ H.formatRupiah(transactionDetail.snapshot_produk.data_visa.total) }}</dd>
+                  </div>
+                  <div v-if="transactionDetail.snapshot_produk.data_visa.tanggal_keberangkatan">
+                    <dt class="text-xs text-gray-500 mb-0.5">Tanggal Keberangkatan</dt>
+                    <dd class="text-base text-gray-900">{{ H.formatDate(transactionDetail.snapshot_produk.data_visa.tanggal_keberangkatan, 'DD/MM/YYYY') }}</dd>
+                  </div>
+                  <div v-if="transactionDetail.snapshot_produk.data_visa.waktu_pemesanan">
+                    <dt class="text-xs text-gray-500 mb-0.5">Waktu Pemesanan</dt>
+                    <dd class="text-base text-gray-900">{{ H.formatDate(transactionDetail.snapshot_produk.data_visa.waktu_pemesanan, 'DD/MM/YYYY HH:mm') }}</dd>
+                  </div>
+                </dl>
+              </div>
+            </div>
+            <!-- Komponen Tiket Pesawat -->
+            <div v-if="transactionDetail.snapshot_produk?.data_tiket_pesawat && Object.keys(transactionDetail.snapshot_produk.data_tiket_pesawat).length" class="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+              <div class="px-5 py-3 bg-gray-50 border-b border-gray-200">
+                <h2 class="text-sm font-semibold text-gray-700 uppercase tracking-wide">Rincian Tiket Pesawat</h2>
+              </div>
+              <div class="p-5">
+                <dl class="space-y-3 text-sm">
+                  <div v-if="transactionDetail.snapshot_produk.data_tiket_pesawat.maskapai_nama">
+                    <dt class="text-xs text-gray-500 mb-0.5">Maskapai</dt>
+                    <dd class="text-base font-medium text-gray-900">{{ transactionDetail.snapshot_produk.data_tiket_pesawat.maskapai_nama }}</dd>
+                  </div>
+                  <div v-if="transactionDetail.snapshot_produk.data_tiket_pesawat.waktu_pemesanan">
+                    <dt class="text-xs text-gray-500 mb-0.5">Waktu Pemesanan</dt>
+                    <dd class="text-base text-gray-900">{{ H.formatDate(transactionDetail.snapshot_produk.data_tiket_pesawat.waktu_pemesanan, 'DD/MM/YYYY HH:mm') }}</dd>
+                  </div>
+                  <div v-if="transactionDetail.snapshot_produk.data_tiket_pesawat.tanggal_keberangkatan">
+                    <dt class="text-xs text-gray-500 mb-0.5">Tanggal Keberangkatan</dt>
+                    <dd class="text-base text-gray-900">{{ H.formatDate(transactionDetail.snapshot_produk.data_tiket_pesawat.tanggal_keberangkatan, 'DD/MM/YYYY') }}</dd>
+                  </div>
+                  <div v-if="transactionDetail.snapshot_produk.data_tiket_pesawat.tanggal_kepulangan">
+                    <dt class="text-xs text-gray-500 mb-0.5">Tanggal Kepulangan</dt>
+                    <dd class="text-base text-gray-900">{{ H.formatDate(transactionDetail.snapshot_produk.data_tiket_pesawat.tanggal_kepulangan, 'DD/MM/YYYY') }}</dd>
+                  </div>
+                  <div v-if="transactionDetail.snapshot_produk.data_tiket_pesawat.jumlah_penumpang != null">
+                    <dt class="text-xs text-gray-500 mb-0.5">Jumlah Penumpang</dt>
+                    <dd class="text-base text-gray-900">{{ transactionDetail.snapshot_produk.data_tiket_pesawat.jumlah_penumpang }}</dd>
+                  </div>
+                  <div v-if="transactionDetail.snapshot_produk.data_tiket_pesawat.harga_per_pax != null">
+                    <dt class="text-xs text-gray-500 mb-0.5">Harga / pax</dt>
+                    <dd class="text-base text-gray-900">{{ H.formatRupiah(transactionDetail.snapshot_produk.data_tiket_pesawat.harga_per_pax) }}</dd>
+                  </div>
+                  <div v-if="transactionDetail.snapshot_produk.data_tiket_pesawat.total != null">
+                    <dt class="text-xs text-gray-500 mb-0.5">Total</dt>
+                    <dd class="text-base font-semibold text-gray-900">{{ H.formatRupiah(transactionDetail.snapshot_produk.data_tiket_pesawat.total) }}</dd>
+                  </div>
+                </dl>
+              </div>
+            </div>
+            <!-- Komponen Badal Umrah -->
+            <div v-if="transactionDetail.snapshot_produk?.data_badal_umrah && Object.keys(transactionDetail.snapshot_produk.data_badal_umrah).length" class="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+              <div class="px-5 py-3 bg-gray-50 border-b border-gray-200">
+                <h2 class="text-sm font-semibold text-gray-700 uppercase tracking-wide">Rincian Badal Umrah</h2>
+              </div>
+              <div class="p-5">
+                <dl class="space-y-3 text-sm">
+                  <div v-if="transactionDetail.snapshot_produk.data_badal_umrah.layanan_nama">
+                    <dt class="text-xs text-gray-500 mb-0.5">Layanan</dt>
+                    <dd class="text-base text-gray-900">{{ transactionDetail.snapshot_produk.data_badal_umrah.layanan_nama }}</dd>
+                  </div>
+                  <div v-if="transactionDetail.snapshot_produk.data_badal_umrah.waktu_pemesanan">
+                    <dt class="text-xs text-gray-500 mb-0.5">Waktu Pemesanan</dt>
+                    <dd class="text-base text-gray-900">{{ H.formatDate(transactionDetail.snapshot_produk.data_badal_umrah.waktu_pemesanan, 'DD/MM/YYYY HH:mm') }}</dd>
+                  </div>
+                  <div v-if="transactionDetail.snapshot_produk.data_badal_umrah.jumlah_jamaah != null">
+                    <dt class="text-xs text-gray-500 mb-0.5">Jumlah Jamaah</dt>
+                    <dd class="text-base text-gray-900">{{ transactionDetail.snapshot_produk.data_badal_umrah.jumlah_jamaah }}</dd>
+                  </div>
+                  <div v-if="transactionDetail.snapshot_produk.data_badal_umrah.harga_per_pax != null">
+                    <dt class="text-xs text-gray-500 mb-0.5">Harga / pax</dt>
+                    <dd class="text-base text-gray-900">{{ H.formatRupiah(transactionDetail.snapshot_produk.data_badal_umrah.harga_per_pax) }}</dd>
+                  </div>
+                  <div v-if="transactionDetail.snapshot_produk.data_badal_umrah.total != null">
+                    <dt class="text-xs text-gray-500 mb-0.5">Total</dt>
+                    <dd class="text-base font-semibold text-gray-900">{{ H.formatRupiah(transactionDetail.snapshot_produk.data_badal_umrah.total) }}</dd>
+                  </div>
+                </dl>
+              </div>
+            </div>
+            <!-- Komponen Badal Haji -->
+            <div v-if="transactionDetail.snapshot_produk?.data_badal_haji && Object.keys(transactionDetail.snapshot_produk.data_badal_haji).length" class="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+              <div class="px-5 py-3 bg-gray-50 border-b border-gray-200">
+                <h2 class="text-sm font-semibold text-gray-700 uppercase tracking-wide">Rincian Badal Haji</h2>
+              </div>
+              <div class="p-5">
+                <dl class="space-y-3 text-sm">
+                  <div v-if="transactionDetail.snapshot_produk.data_badal_haji.layanan_nama">
+                    <dt class="text-xs text-gray-500 mb-0.5">Layanan</dt>
+                    <dd class="text-base text-gray-900">{{ transactionDetail.snapshot_produk.data_badal_haji.layanan_nama }}</dd>
+                  </div>
+                  <div v-if="transactionDetail.snapshot_produk.data_badal_haji.waktu_pemesanan">
+                    <dt class="text-xs text-gray-500 mb-0.5">Waktu Pemesanan</dt>
+                    <dd class="text-base text-gray-900">{{ H.formatDate(transactionDetail.snapshot_produk.data_badal_haji.waktu_pemesanan, 'DD/MM/YYYY HH:mm') }}</dd>
+                  </div>
+                  <div v-if="transactionDetail.snapshot_produk.data_badal_haji.jumlah_jamaah != null">
+                    <dt class="text-xs text-gray-500 mb-0.5">Jumlah Jamaah</dt>
+                    <dd class="text-base text-gray-900">{{ transactionDetail.snapshot_produk.data_badal_haji.jumlah_jamaah }}</dd>
+                  </div>
+                  <div v-if="transactionDetail.snapshot_produk.data_badal_haji.harga_per_pax != null && transactionDetail.snapshot_produk.data_badal_haji.harga_per_pax > 0">
+                    <dt class="text-xs text-gray-500 mb-0.5">Harga / pax</dt>
+                    <dd class="text-base text-gray-900">{{ H.formatRupiah(transactionDetail.snapshot_produk.data_badal_haji.harga_per_pax) }}</dd>
+                  </div>
+                  <div v-if="transactionDetail.snapshot_produk.data_badal_haji.total != null && transactionDetail.snapshot_produk.data_badal_haji.total > 0">
+                    <dt class="text-xs text-gray-500 mb-0.5">Total</dt>
+                    <dd class="text-base font-semibold text-gray-900">{{ H.formatRupiah(transactionDetail.snapshot_produk.data_badal_haji.total) }}</dd>
+                  </div>
+                </dl>
+              </div>
+            </div>
+            <div v-if="layananWajibItems.length > 0" class="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+              <div class="px-5 py-3 bg-gray-50 border-b border-gray-200">
+                <h2 class="text-sm font-semibold text-gray-700 uppercase tracking-wide">Layanan Wajib</h2>
+              </div>
+              <div class="p-5 space-y-3">
+                <div v-for="(item, idx) in layananWajibItems" :key="'wajib-' + idx" class="flex justify-between items-start py-2 border-b border-gray-100 last:border-0">
+                  <div>
+                    <p class="font-medium text-gray-900">{{ item.nama }}</p>
+                    <p class="text-xs text-gray-500 mt-0.5">{{ H.formatRupiah(item.harga) }} {{ item.satuan || '/pax' }} × {{ item.multLabel }}</p>
+                  </div>
+                  <span class="font-semibold text-gray-900 whitespace-nowrap">{{ H.formatRupiah(item.value) }}</span>
                 </div>
-                <div v-if="totalLayananWajib > 0" class="flex justify-between font-semibold pt-2 mt-2 border-t border-gray-200">
+                <div v-if="totalLayananWajib > 0" class="flex justify-between font-semibold pt-3 border-t border-gray-200">
                   <span>Subtotal layanan wajib</span>
                   <span>{{ H.formatRupiah(totalLayananWajib) }}</span>
                 </div>
               </div>
             </div>
-            <div v-if="layananTambahanIds.length > 0" class="p-3 bg-gray-50 rounded">
-              <div class="font-medium mb-2">Layanan Tambahan yang Dipilih</div>
-              <div class="space-y-2 text-sm text-gray-700">
-                <div v-for="(item, idx) in layananTambahanItems" :key="idx" class="py-2 border-b border-gray-200 last:border-0">
-                  <div class="flex justify-between items-center">
-                    <span>{{ item.nama }}</span>
-                    <span class="font-medium text-gray-900 whitespace-nowrap">{{ H.formatRupiah(item.value) }}</span>
+            <div v-if="layananTambahanIds.length > 0" class="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+              <div class="px-5 py-3 bg-gray-50 border-b border-gray-200">
+                <h2 class="text-sm font-semibold text-gray-700 uppercase tracking-wide">Layanan Tambahan</h2>
+              </div>
+              <div class="p-5 space-y-3">
+                <div v-for="(item, idx) in layananTambahanItems" :key="idx" class="flex justify-between items-start py-2 border-b border-gray-100 last:border-0">
+                  <div>
+                    <p class="font-medium text-gray-900">{{ item.nama }}</p>
+                    <p class="text-xs text-gray-500 mt-0.5">{{ H.formatRupiah(item.harga) }} {{ item.satuan || '/pax' }} × {{ item.multLabel }}</p>
                   </div>
-                  <p class="text-xs text-gray-500 mt-0.5">{{ H.formatRupiah(item.harga) }} {{ item.satuan || '/pax' }} × {{ item.multLabel }} = {{ H.formatRupiah(item.value) }}</p>
+                  <span class="font-semibold text-gray-900 whitespace-nowrap">{{ H.formatRupiah(item.value) }}</span>
                 </div>
-                <div v-if="totalLayananTambahan > 0" class="flex justify-between font-semibold pt-2 mt-2 border-t border-gray-200">
+                <div v-if="totalLayananTambahan > 0" class="flex justify-between font-semibold pt-3 border-t border-gray-200">
                   <span>Subtotal layanan tambahan</span>
                   <span>{{ H.formatRupiah(totalLayananTambahan) }}</span>
                 </div>
               </div>
             </div>
-            <div v-if="rincianBiaya.length > 0 || totalLayananWajib > 0 || totalLayananTambahan > 0" class="p-3 bg-gray-50 rounded">
-              <div class="font-medium mb-2">Rincian Biaya</div>
-              <div class="space-y-1 text-sm">
-                <div v-for="(item, i) in rincianBiaya" :key="'hotel-' + i" class="flex justify-between text-gray-700">
-                  <span>{{ item.label }}</span>
-                  <span>{{ H.formatRupiah(item.value) }}</span>
-                </div>
-                <div v-if="totalLayananWajib > 0" class="flex justify-between text-gray-700">
-                  <span>Layanan wajib</span>
-                  <span>{{ H.formatRupiah(totalLayananWajib) }}</span>
-                </div>
-                <div v-if="totalLayananTambahan > 0" class="flex justify-between text-gray-700">
-                  <span>Layanan tambahan</span>
-                  <span>{{ H.formatRupiah(totalLayananTambahan) }}</span>
-                </div>
-                <div v-if="totalBiaya > 0" class="flex justify-between font-semibold pt-2 border-t border-gray-200 mt-2">
-                  <span>Total</span>
-                  <span>{{ H.formatRupiah(totalBiaya) }}</span>
+            <div v-if="rincianBiaya.length > 0 || totalLayananWajib > 0 || totalLayananTambahan > 0" class="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+              <div class="px-5 py-3 bg-gray-50 border-b border-gray-200">
+                <h2 class="text-sm font-semibold text-gray-700 uppercase tracking-wide">Rincian Biaya</h2>
+              </div>
+              <div class="p-5">
+                <dl class="space-y-2">
+                  <div v-for="(item, i) in rincianBiaya" :key="'hotel-' + i" class="flex justify-between text-base">
+                    <dt class="text-gray-700">{{ item.label }}</dt>
+                    <dd class="font-medium text-gray-900">{{ H.formatRupiah(item.value) }}</dd>
+                  </div>
+                  <div v-if="totalLayananWajib > 0" class="flex justify-between text-base">
+                    <dt class="text-gray-700">Layanan wajib</dt>
+                    <dd class="font-medium text-gray-900">{{ H.formatRupiah(totalLayananWajib) }}</dd>
+                  </div>
+                  <div v-if="totalLayananTambahan > 0" class="flex justify-between text-base">
+                    <dt class="text-gray-700">Layanan tambahan</dt>
+                    <dd class="font-medium text-gray-900">{{ H.formatRupiah(totalLayananTambahan) }}</dd>
+                  </div>
+                </dl>
+                <div v-if="totalBiaya > 0" class="flex justify-between items-center pt-4 mt-4 border-t-2 border-gray-200">
+                  <span class="text-base font-semibold text-gray-900">Total</span>
+                  <span class="text-lg font-bold text-gray-900">{{ H.formatRupiah(totalBiaya) }}</span>
                 </div>
               </div>
             </div>
-            <div v-if="transactionDetail.snapshot_produk.komponen && Object.values(transactionDetail.snapshot_produk.komponen).some((v: any) => v)" class="p-3 bg-gray-50 rounded">
-              <div class="font-medium mb-1">Komponen LA</div>
-              <div class="flex flex-wrap gap-1">
-                <span v-for="(val, key) in transactionDetail.snapshot_produk.komponen" :key="String(key)" v-show="val" class="px-2 py-0.5 bg-teal-100 rounded text-xs">{{ key }}</span>
+            <div v-if="transactionDetail.snapshot_produk.komponen && Object.values(transactionDetail.snapshot_produk.komponen).some((v: any) => v)" class="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+              <div class="px-5 py-3 bg-gray-50 border-b border-gray-200">
+                <h2 class="text-sm font-semibold text-gray-700 uppercase tracking-wide">Komponen LA</h2>
+              </div>
+              <div class="p-5">
+                <div class="flex flex-wrap gap-2">
+                  <span v-for="(val, key) in transactionDetail.snapshot_produk.komponen" :key="String(key)" v-show="val" class="px-3 py-1.5 bg-teal-50 text-teal-800 rounded-lg text-sm font-medium">{{ key }}</span>
+                </div>
               </div>
             </div>
           </template>
@@ -650,6 +859,40 @@ const paketUmrahDisplay = computed(() => {
 })
 
 const dh = computed(() => transactionDetail.value?.snapshot_produk?.data_hotel ?? {})
+/** Data hotel hanya ditampilkan jika ada nama hotel atau detail kamar */
+const hasDataHotel = computed(() => {
+  const d = dh.value
+  if (!d || typeof d !== 'object') return false
+  const hasName = Boolean((d as any).hotelMekkah ?? (d as any).hotel_mekkah ?? (d as any).hotelMadinah ?? (d as any).hotel_madinah)
+  const rd = (d as any).room_details
+  const hasRooms = Array.isArray(rd) && rd.length > 0
+  return hasName || hasRooms
+})
+/** Tanggal program hanya ditampilkan jika ada tanggal check-in/check-out */
+const hasTanggalProgram = computed(() => {
+  const tp = tanggalProgram.value
+  if (!tp || typeof tp !== 'object') return false
+  const dep = (tp as any).departureDate ?? (tp as any).departure_date
+  const ret = (tp as any).returnDate ?? (tp as any).return_date
+  return (dep != null && String(dep).trim() !== '') || (ret != null && String(ret).trim() !== '')
+})
+/** Data keberangkatan hanya ditampilkan jika ada isi (komponen hotel biasanya kosong) */
+const dataKeberangkatan = computed(() => transactionDetail.value?.snapshot_produk?.data_keberangkatan ?? null)
+const hasDataKeberangkatan = computed(() => {
+  const d = dataKeberangkatan.value
+  if (!d || typeof d !== 'object') return false
+  const v = (key: string) => (d as Record<string, unknown>)[key]
+  const maskapai = (v('namaMaskapai') ?? v('nama_maskapai')) as string
+  const bandaraBerangkat = (v('bandaraKeberangkatan') ?? v('bandara_keberangkatan')) as string
+  const bandaraPulang = (v('bandaraKepulangan') ?? v('bandara_kepulangan')) as string
+  return [maskapai, bandaraBerangkat, bandaraPulang].some((s) => s != null && String(s).trim() !== '')
+})
+/** Detail kamar per tipe (Komponen Hotel): untuk tabel di Data Hotel & rincian biaya */
+const roomDetails = computed(() => {
+  const d = dh.value
+  const rd = d?.room_details
+  return Array.isArray(rd) ? rd : []
+})
 const jamaahCount = computed(() => Math.max(transactionDetail.value?.jamaah_data?.length ?? 1, 1))
 const tanggalProgram = computed(() => transactionDetail.value?.snapshot_produk?.tanggal_program_umrah ?? null)
 const listPembayaran = computed(() => {
@@ -679,23 +922,38 @@ const durasiHari = computed(() => {
   const ret = new Date(tp.returnDate).getTime()
   return Math.max(0, Math.round((ret - dep) / (24 * 60 * 60 * 1000))) || 9
 })
+/** Untuk tampilan tabel kamar & rincian: minimal 1 agar subtotal tidak 0 saat tanggal belum ada */
+const durasiHariDisplay = computed(() => Math.max(durasiHari.value, 1))
 
 const rincianBiaya = computed(() => {
   const data = dh.value
   if (!data) return []
   const parse = (v: any) => (v != null && v !== '' ? Number(String(v).replace(/[^0-9.-]/g, '')) : 0)
-  const hMekkah = parse(data.hotelMekkahHarga ?? data.hotel_mekkah_harga)
-  const hMadinah = parse(data.hotelMadinahHarga ?? data.hotel_madinah_harga)
-  const kamar = Math.max(parse(data.kuotaKamar ?? data.kuota_kamar) || 1, 1)
   const hari = Math.max(durasiHari.value, 1)
   const out: { label: string; value: number }[] = []
-  if (hMekkah > 0) {
-    const nama = (data.hotelMekkah ?? data.hotel_mekkah) || 'Hotel Mekkah'
-    out.push({ label: nama, value: hMekkah * kamar * hari })
-  }
-  if (hMadinah > 0) {
-    const nama = (data.hotelMadinah ?? data.hotel_madinah) || 'Hotel Madinah'
-    out.push({ label: nama, value: hMadinah * kamar * hari })
+  const rd = roomDetails.value
+  if (rd.length > 0) {
+    const hotelName = (data.hotelMekkah ?? data.hotel_mekkah ?? data.hotelMadinah ?? data.hotel_madinah ?? 'Hotel') as string
+    rd.forEach((r: any) => {
+      const qty = Math.max(Number(r.qty) || 0, 0)
+      const harga = parse(r.hargaPerMalam ?? r.harga_per_malam)
+      if (qty > 0 && harga > 0) {
+        const label = (r.roomTypeName ?? r.room_type_name) ? `${(r.roomTypeName ?? r.room_type_name)} (${hotelName})` : hotelName
+        out.push({ label, value: harga * qty * hari })
+      }
+    })
+  } else {
+    const hMekkah = parse(data.hotelMekkahHarga ?? data.hotel_mekkah_harga)
+    const hMadinah = parse(data.hotelMadinahHarga ?? data.hotel_madinah_harga)
+    const kamar = Math.max(parse(data.kuotaKamar ?? data.kuota_kamar) || 1, 1)
+    if (hMekkah > 0) {
+      const nama = (data.hotelMekkah ?? data.hotel_mekkah) || 'Hotel Mekkah'
+      out.push({ label: nama, value: hMekkah * kamar * hari })
+    }
+    if (hMadinah > 0) {
+      const nama = (data.hotelMadinah ?? data.hotel_madinah) || 'Hotel Madinah'
+      out.push({ label: nama, value: hMadinah * kamar * hari })
+    }
   }
   return out
 })
@@ -719,11 +977,18 @@ function getMultLabel(satuan: string | undefined, jamaah: number, hari: number):
   return perPax ? `${jamaah} orang` : perHari ? `${hari} hari` : '1'
 }
 
-/** Layanan wajib: dari snapshot (order baru) atau dari list API (order lama) */
+/** Transaksi komponen (Komponen Hotel, dll): layanan wajib tidak dipakai, hanya komponen saja */
+const isTransaksiKomponen = computed(() => {
+  const k = transactionDetail.value?.snapshot_produk?.kategori_paket
+  return typeof k === 'string' && (k.startsWith('Komponen') || k === 'Komponen Hotel')
+})
+
+/** Layanan wajib: dari snapshot (order baru) atau dari list API (order lama). Untuk transaksi Komponen tidak tampil. */
 const layananWajibItems = computed(() => {
   const snap = transactionDetail.value?.snapshot_produk
   const jamaah = jamaahCount.value
   const hari = durasiHari.value
+  if (isTransaksiKomponen.value) return []
   const fromSnap = Array.isArray(snap?.layanan_wajib) && snap.layanan_wajib.length > 0 ? snap.layanan_wajib : null
   if (fromSnap && fromSnap.length > 0) {
     return fromSnap.map((x: any) => {
@@ -905,13 +1170,19 @@ const handleUpdatePembayaran = async () => {
     return
   }
   try {
-    await api.post('/sistem-admin/transaksi/update-status-pembayaran', {
+    const res = await api.post('/sistem-admin/transaksi/update-status-pembayaran', {
       id: transactionDetail.value.id,
-      status_pembayaran_id: statusId,
+      status_pembayaran_id: Number(statusId),
     })
-    ModalUpdateStatusPembayaran.value = false
-    selectedStatusPembayaran.value = null
-    fetchDetail()
+    const body = res as { status?: boolean; message?: string }
+    if (body?.status === true) {
+      ModalUpdateStatusPembayaran.value = false
+      selectedStatusPembayaran.value = null
+      await fetchDetail()
+      alert('Status pembayaran berhasil diubah.')
+    } else {
+      alert(body?.message ?? 'Update status pembayaran gagal.')
+    }
   } catch (err: any) {
     alert(err?.response?.data?.message ?? 'Gagal update status pembayaran.')
   }

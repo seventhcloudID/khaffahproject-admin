@@ -226,6 +226,27 @@
             </div>
           </div>
         </div>
+
+        <div class="border border-gray-200 rounded-lg bg-white shadow-sm overflow-hidden">
+          <div class="p-3 sm:p-4 bg-teal-50 border-b border-gray-200">
+            <h3 class="text-base sm:text-lg font-semibold text-teal-900 flex items-center gap-2">
+              <i class="fas fa-puzzle-piece text-teal-600"></i>
+              Transaksi Komponen
+            </h3>
+          </div>
+          <div class="p-3 sm:p-4">
+            <div class="space-y-2 sm:space-y-3">
+              <div class="flex justify-between items-center text-sm sm:text-base">
+                <span class="text-gray-600">Total Transaksi</span>
+                <span class="font-bold text-gray-900">{{ summary.komponen.total || 0 }}</span>
+              </div>
+              <div class="flex justify-between items-center text-sm sm:text-base">
+                <span class="text-gray-600">Total Pendapatan</span>
+                <span class="font-bold text-green-600">{{ formatCurrency(summary.komponen.pendapatan || 0) }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- Daftar Transaksi -->
@@ -258,6 +279,7 @@
                     'bg-blue-100 text-blue-800': row.jenis_transaksi === 'Umrah',
                     'bg-green-100 text-green-800': row.jenis_transaksi === 'Haji',
                     'bg-purple-100 text-purple-800': row.jenis_transaksi === 'Edutrip',
+                    'bg-teal-100 text-teal-800': row.jenis_transaksi === 'Komponen',
                   }"
                   class="px-2 py-0.5 rounded text-xs font-semibold"
                 >
@@ -267,6 +289,7 @@
                   :class="{
                     'bg-yellow-100 text-yellow-800': row.status_pembayaran === 'Menunggu Verifikasi',
                     'bg-green-100 text-green-800': row.status_pembayaran === 'Lunas',
+                    'bg-orange-100 text-orange-800': row.status_pembayaran === 'Belum Lunas',
                     'bg-red-100 text-red-800': row.status_pembayaran === 'Ditolak',
                     'bg-gray-100 text-gray-800': row.status_pembayaran === 'Belum Bayar',
                   }"
@@ -275,9 +298,12 @@
                   {{ row.status_pembayaran || '-' }}
                 </span>
               </div>
-                <p class="text-sm font-semibold text-green-600 mt-2">
-                  {{ formatCurrency(row.total_biaya || 0) }}
-                </p>
+              <p class="text-sm font-semibold text-green-600 mt-2">
+                Total Biaya: {{ formatCurrency(row.total_biaya || 0) }}
+              </p>
+              <p v-if="row.status_pembayaran === 'Belum Lunas' && (row.nominal_diterima || 0) > 0" class="text-sm text-gray-700 mt-0.5">
+                Nominal Diterima: {{ formatCurrency(row.nominal_diterima || 0) }}
+              </p>
             </div>
             <!-- Pagination mobile -->
             <div v-if="totalPages > 1" class="flex items-center justify-center gap-2 pt-4 pb-2">
@@ -310,7 +336,8 @@
                     <th class="px-3 sm:px-4 py-3 font-semibold text-gray-700">Kode Transaksi</th>
                     <th class="px-3 sm:px-4 py-3 font-semibold text-gray-700">Nama Pemesan</th>
                     <th class="px-3 sm:px-4 py-3 font-semibold text-gray-700">Jenis</th>
-                    <th class="px-3 sm:px-4 py-3 font-semibold text-gray-700">Total Biaya</th>
+                    <th class="px-3 sm:px-4 py-3 font-semibold text-gray-700 text-right">Total Biaya</th>
+                    <th class="px-3 sm:px-4 py-3 font-semibold text-gray-700 text-right">Nominal Diterima</th>
                     <th class="px-3 sm:px-4 py-3 font-semibold text-gray-700">Status Pembayaran</th>
                     <th class="px-3 sm:px-4 py-3 font-semibold text-gray-700">Tanggal</th>
                   </tr>
@@ -329,20 +356,25 @@
                           'bg-blue-100 text-blue-800': row.jenis_transaksi === 'Umrah',
                           'bg-green-100 text-green-800': row.jenis_transaksi === 'Haji',
                           'bg-purple-100 text-purple-800': row.jenis_transaksi === 'Edutrip',
+                          'bg-teal-100 text-teal-800': row.jenis_transaksi === 'Komponen',
                         }"
                         class="px-2 py-1 rounded text-xs font-semibold"
                       >
                         {{ row.jenis_transaksi }}
                       </span>
                     </td>
-                    <td class="px-3 sm:px-4 py-3 font-semibold text-green-600">
+                    <td class="px-3 sm:px-4 py-3 font-semibold text-green-600 text-right">
                       {{ formatCurrency(row.total_biaya || 0) }}
+                    </td>
+                    <td class="px-3 sm:px-4 py-3 text-right text-gray-700">
+                      {{ formatCurrency(row.nominal_diterima || 0) }}
                     </td>
                     <td class="px-3 sm:px-4 py-3">
                       <span
                         :class="{
                           'bg-yellow-100 text-yellow-800': row.status_pembayaran === 'Menunggu Verifikasi',
                           'bg-green-100 text-green-800': row.status_pembayaran === 'Lunas',
+                          'bg-orange-100 text-orange-800': row.status_pembayaran === 'Belum Lunas',
                           'bg-red-100 text-red-800': row.status_pembayaran === 'Ditolak',
                           'bg-gray-100 text-gray-800': row.status_pembayaran === 'Belum Bayar',
                         }"
@@ -415,6 +447,7 @@ const summary = ref({
   haji: { total: 0, pendapatan: 0 },
   edutrip: { total: 0, pendapatan: 0 },
   custom: { total: 0, pendapatan: 0 },
+  komponen: { total: 0, pendapatan: 0 },
 })
 
 const transactions = ref<any[]>([])
@@ -432,15 +465,17 @@ watch(currentPage, () => {
   if (currentPage.value > totalPages.value) currentPage.value = totalPages.value
 })
 
+/** API get-laporan-keuangan mengembalikan { data: { data: { umrah: [], haji: [], edutrip: [], custom: [], komponen: [] } } } */
 function getListFromResponse(body: any, key: string): any[] {
   if (body == null || typeof body !== 'object') return []
-  const data = body.data
-  if (data == null || typeof data !== 'object') return []
-  const arr = data[key]
+  const outer = body.data
+  if (outer == null || typeof outer !== 'object') return []
+  const inner = outer.data
+  const arr = (inner && typeof inner === 'object' && inner[key]) ?? outer[key]
   return Array.isArray(arr) ? arr : []
 }
 
-function normalizeRow(t: any, jenis: string): any {
+function getTotalBiayaRaw(t: any): number {
   let biaya = Number(t.total_biaya) || 0
   if (biaya === 0 && t.snapshot_produk) {
     try {
@@ -458,39 +493,64 @@ function normalizeRow(t: any, jenis: string): any {
       // ignore
     }
   }
+  return biaya
+}
+
+function getTotalVerified(t: any): number {
+  return Number(t.total_pembayaran_verified) || 0
+}
+
+/** Lunas dari pembayaran: total verified >= total biaya */
+function isLunasByVerified(t: any): boolean {
+  const totalBiaya = getTotalBiayaRaw(t)
+  const totalVerified = getTotalVerified(t)
+  return totalBiaya > 0 && totalVerified >= totalBiaya
+}
+
+/**
+ * Dianggap Lunas untuk hitung pendapatan: status backend Lunas ATAU pembayaran verified sudah penuh.
+ * Berlaku untuk semua jenis: Umrah, Haji, Edutrip, Custom, Komponen.
+ */
+function isDianggapLunas(t: any): boolean {
+  const statusNama = t.status_pembayaran_nama != null ? String(t.status_pembayaran_nama).trim() : ''
+  if (statusNama === 'Lunas') return true
+  return isLunasByVerified(t)
+}
+
+function normalizeRow(t: any, jenis: string): any {
+  const biaya = getTotalBiayaRaw(t)
+  const totalVerified = getTotalVerified(t)
+  const sisaTagihan = Math.max(0, biaya - totalVerified)
+  // Utamakan status dari backend (admin bisa set Lunas tanpa wajib ada pembayaran verified)
+  const statusPembayaran =
+    t.status_pembayaran_nama != null && String(t.status_pembayaran_nama).trim() !== ''
+      ? String(t.status_pembayaran_nama).trim()
+      : sisaTagihan > 0
+        ? 'Belum Lunas'
+        : 'Lunas'
+  // Jika status Lunas (dari backend), nominal diterima = 100% (total biaya); else dari pembayaran verified. Berlaku semua jenis (Umrah, Haji, Edutrip, Custom, Komponen).
+  const nominalDiterima =
+    statusPembayaran === 'Lunas' && (t.status_pembayaran_nama != null && String(t.status_pembayaran_nama).trim() === 'Lunas')
+      ? biaya
+      : totalVerified
   return {
     ...t,
     jenis_transaksi: jenis,
-    status_pembayaran: t.status_pembayaran_nama || getStatusPembayaran(t.status_pembayaran_id),
+    status_pembayaran: statusPembayaran,
     tanggal_transaksi: t.tanggal_transaksi || t.created_at || t.tgl_pemesanan,
     total_biaya: biaya,
+    nominal_diterima: nominalDiterima,
     kode_transaksi: t.kode_transaksi || t.nomor_pembayaran || '-',
     nama_lengkap: t.nama_lengkap || t.nama || '-',
   }
 }
 
-// Sesuaikan dengan StatusPembayaranSeeder: 1=BELUM_BAYAR, 2=DP, 3=CICIL, 4=LUNAS, 5=REFUND
-function getStatusPembayaran(statusId: number | null): string {
-  const statusMap: Record<number, string> = {
-    1: 'Belum Bayar',
-    2: 'Sudah Bayar DP',
-    3: 'Cicilan Berjalan',
-    4: 'Lunas',
-    5: 'Refund',
-  }
-  return statusMap[statusId || 0] || 'Belum Bayar'
-}
-
-function isLunas(t: any): boolean {
-  return (
-    t.status_pembayaran_id === 4 ||
-    t.status_pembayaran_kode === 'LUNAS' ||
-    String(t.status_pembayaran_nama || '').toLowerCase() === 'lunas'
-  )
-}
-
+/** Total pendapatan = jumlah nominal yang sudah diterima per transaksi (Lunas = full total_biaya, Cicilan/ lainnya = pembayaran verified). */
 function sumPendapatan(list: any[]): number {
-  return list.filter(isLunas).reduce((sum, t) => sum + (Number(normalizeRow(t, '').total_biaya) || 0), 0)
+  return list.reduce((sum, t) => {
+    const row = normalizeRow(t, '')
+    return sum + (Number(row.nominal_diterima) || 0)
+  }, 0)
 }
 
 const fetchData = async () => {
@@ -508,28 +568,35 @@ const fetchData = async () => {
     const hajiList = getListFromResponse(res, 'haji')
     const edutripList = getListFromResponse(res, 'edutrip')
     const customList = getListFromResponse(res, 'custom')
+    const komponenList = getListFromResponse(res, 'komponen')
 
     const umrahRows = umrahList.map((t: any) => normalizeRow(t, 'Umrah'))
     const hajiRows = hajiList.map((t: any) => normalizeRow(t, 'Haji'))
     const edutripRows = edutripList.map((t: any) => normalizeRow(t, 'Edutrip'))
     const customRows = customList.map((t: any) => normalizeRow(t, 'Custom'))
+    const komponenRows = komponenList.map((t: any) => normalizeRow(t, 'Komponen'))
 
-    const totalPendapatan =
-      sumPendapatan(umrahList) + sumPendapatan(hajiList) + sumPendapatan(edutripList) + sumPendapatan(customList)
-    const totalTransaksi = umrahRows.length + hajiRows.length + edutripRows.length + customRows.length
+    const umrahPendapatan = sumPendapatan(umrahList)
+    const hajiPendapatan = sumPendapatan(hajiList)
+    const edutripPendapatan = sumPendapatan(edutripList)
+    const customPendapatan = sumPendapatan(customList)
+    const komponenPendapatan = sumPendapatan(komponenList)
+    const totalPendapatan = umrahPendapatan + hajiPendapatan + edutripPendapatan + customPendapatan + komponenPendapatan
+    const totalTransaksi = umrahRows.length + hajiRows.length + edutripRows.length + customRows.length + komponenRows.length
 
     summary.value = {
       totalPendapatan,
       totalPengeluaran: 0,
       labaRugi: totalPendapatan,
       totalTransaksi,
-      umrah: { total: umrahRows.length, pendapatan: sumPendapatan(umrahList) },
-      haji: { total: hajiRows.length, pendapatan: sumPendapatan(hajiList) },
-      edutrip: { total: edutripRows.length, pendapatan: sumPendapatan(edutripList) },
-      custom: { total: customRows.length, pendapatan: sumPendapatan(customList) },
+      umrah: { total: umrahRows.length, pendapatan: umrahPendapatan },
+      haji: { total: hajiRows.length, pendapatan: hajiPendapatan },
+      edutrip: { total: edutripRows.length, pendapatan: edutripPendapatan },
+      custom: { total: customRows.length, pendapatan: customPendapatan },
+      komponen: { total: komponenRows.length, pendapatan: komponenPendapatan },
     }
 
-    const all = [...umrahRows, ...hajiRows, ...edutripRows, ...customRows].sort((a, b) => {
+    const all = [...umrahRows, ...hajiRows, ...edutripRows, ...customRows, ...komponenRows].sort((a, b) => {
       const dateA = new Date(a.tanggal_transaksi || a.created_at || 0).getTime()
       const dateB = new Date(b.tanggal_transaksi || b.created_at || 0).getTime()
       return dateB - dateA
@@ -549,6 +616,7 @@ const fetchData = async () => {
       haji: { total: 0, pendapatan: 0 },
       edutrip: { total: 0, pendapatan: 0 },
       custom: { total: 0, pendapatan: 0 },
+      komponen: { total: 0, pendapatan: 0 },
     }
     transactions.value = []
   } finally {

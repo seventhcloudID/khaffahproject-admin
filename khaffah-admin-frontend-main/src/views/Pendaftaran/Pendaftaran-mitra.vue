@@ -178,14 +178,7 @@
       </div>
     </Card>
 
-    <Menu ref="menu" :model="getMenuItems(currentRowData)" :popup="true" appendTo="body">
-      <template #item="{ item: menuItem }">
-        <a class="flex items-center gap-2 px-3 py-2.5 sm:py-2 cursor-pointer hover:bg-gray-100 min-h-[44px] sm:min-h-0">
-          <i :class="[menuItem.icon, menuItem.iconColor]"></i>
-          <span>{{ menuItem.label }}</span>
-        </a>
-      </template>
-    </Menu>
+    <Menu ref="menu" :model="getMenuItems(currentRowData)" :popup="true" appendTo="body" />
   </div>
 </template>
 
@@ -285,7 +278,7 @@ const getMenuItems = (_data: any) => {
           label: 'Lihat Detail',
           icon: 'fas fa-eye',
           iconColor: 'text-blue-600',
-          command: () => bukaDetail(row),
+          command: () => verifikasi(row),
         },
       ]
 
@@ -295,7 +288,7 @@ const getMenuItems = (_data: any) => {
           label: 'Lihat Detail',
           icon: 'fas fa-eye',
           iconColor: 'text-blue-600',
-          command: () => bukaDetail(row),
+          command: () => verifikasi(row),
         },
         {
           label: 'Proses Ulang',

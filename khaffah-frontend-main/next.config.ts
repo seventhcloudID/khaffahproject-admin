@@ -6,6 +6,8 @@ const nextConfig: NextConfig = {
   allowedDevOrigins: ["http://127.0.0.1:3000", "http://localhost:3000"],
   // turbopack root dihapus - bisa sebabkan error di beberapa environment
   images: {
+    // Daftar quality yang boleh dipakai (Next.js 16+ wajib). Default 75; komponen pakai 70.
+    qualities: [70, 75, 90],
     remotePatterns: [
       {
         protocol: "https",
@@ -16,6 +18,19 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "apikaffah.paperostudio.com",
+        port: "",
+        pathname: "/**",
+      },
+      // Sumber gambar eksternal (dipakai oleh data dummy / pilihan hotel)
+      {
+        protocol: "https",
+        hostname: "encrypted-tbn0.gstatic.com",
+        port: "",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "lh3.googleusercontent.com",
         port: "",
         pathname: "/**",
       },

@@ -1,25 +1,78 @@
 <template>
   <div class="columns">
     <Card class="column is-12" elevated radius="smooth" padding="md">
-      <div class="flex items-center gap-4 mb-6">
+      <div class="flex items-center justify-between gap-4 mb-4 flex-wrap">
+        <div class="flex items-center gap-4">
+          <button
+            @click="goBack()"
+            class="inline-flex items-center justify-center w-8 h-8 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors"
+          >
+            <i class="fas fa-arrow-left"></i>
+          </button>
+          <h1 class="text-xl font-medium">
+            {{ isEditMode ? 'Edit Paket Umrah' : 'Tambah Paket Umrah' }}
+          </h1>
+        </div>
+        <!-- Sticky-style action bar: selalu terlihat untuk akses cepat Simpan/Batal -->
+        <div class="flex items-center gap-2">
+          <Button type="button" @click="goBack()" outlined color="secondary" size="sm"> Batal </Button>
+          <Button type="button" @click="submitForm()" color="success" :loading="isLoadingSubmit" size="sm"> Simpan </Button>
+        </div>
+      </div>
+
+      <!-- Quick jump: navigasi ke section -->
+      <div
+        v-if="!isLoadingData"
+        class="mb-6 p-3 bg-gray-50 rounded-lg border border-gray-200 flex flex-wrap gap-2 items-center"
+      >
+        <span class="text-sm font-medium text-gray-600 mr-1">Langsung ke:</span>
+        <template v-for="(s, key) in sectionList" :key="key">
+          <button
+            type="button"
+            @click="scrollToSection(key)"
+            class="px-2.5 py-1 text-xs rounded-md transition-colors"
+            :class="openSections[key] ? 'bg-blue-100 text-blue-800 font-medium' : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'"
+          >
+            {{ s.short }}
+          </button>
+        </template>
         <button
-          @click="goBack()"
-          class="inline-flex items-center justify-center w-8 h-8 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors"
+          type="button"
+          @click="toggleAllSections(true)"
+          class="px-2 py-1 text-xs text-gray-500 hover:text-gray-700"
         >
-          <i class="fas fa-arrow-left"></i>
+          Buka semua
         </button>
-        <h1 class="text-xl font-medium">
-          {{ isEditMode ? 'Edit Paket Umrah' : 'Tambah Paket Umrah' }}
-        </h1>
+        <button
+          type="button"
+          @click="toggleAllSections(false)"
+          class="px-2 py-1 text-xs text-gray-500 hover:text-gray-700"
+        >
+          Tutup semua
+        </button>
+        <span class="text-xs text-gray-400 ml-auto">Klik judul section untuk buka/tutup. Simpan & Batal ada di kanan atas.</span>
       </div>
 
       <div v-if="isLoadingData" class="flex justify-center items-center py-8">
         <div class="text-gray-600">Loading...</div>
       </div>
 
-      <form v-else @submit.prevent="submitForm()" class="space-y-6">
-        <!-- Info Dasar -->
-        <div class="space-y-4">
+      <form v-else @submit.prevent="submitForm()" class="space-y-4">
+        <!-- 1. Info Dasar -->
+        <div id="section-info" class="border border-gray-200 rounded-lg overflow-hidden bg-white">
+          <button
+            type="button"
+            class="section-header w-full flex items-center gap-3 px-4 py-3 text-left bg-gray-50 hover:bg-gray-100 transition-colors"
+            @click="openSections.info = !openSections.info"
+          >
+            <i class="fas fa-chevron-right transition-transform text-gray-500" :class="{ 'rotate-90': openSections.info }"></i>
+            <span class="flex items-center gap-2">
+              <i class="fas fa-info-circle text-blue-600"></i>
+              <strong>1. Info Dasar</strong>
+            </span>
+            <span class="text-sm text-gray-500 ml-2">Nama, deskripsi, musim, lokasi, durasi, kuota</span>
+          </button>
+          <div v-show="openSections.info" class="p-4 space-y-4 border-t border-gray-200">
           <Field label="Nama Paket" id="nama_paket" required>
             <input
               v-model="formData.nama_paket"
@@ -46,7 +99,7 @@
                 @complete="fetchMusim($event)"
                 :optionLabel="'label'"
                 :dropdown="true"
-                :minLength="1"
+              :minLength="0"
                 :appendTo="'body'"
                 :field="'label'"
                 placeholder="Pilih musim..."
@@ -75,7 +128,7 @@
                 @complete="fetchKota($event)"
                 :optionLabel="'label'"
                 :dropdown="true"
-                :minLength="1"
+              :minLength="0"
                 :appendTo="'body'"
                 :field="'label'"
                 placeholder="Pilih lokasi keberangkatan..."
@@ -90,7 +143,7 @@
                 @complete="fetchKota($event)"
                 :optionLabel="'label'"
                 :dropdown="true"
-                :minLength="1"
+              :minLength="0"
                 :appendTo="'body'"
                 :field="'label'"
                 placeholder="Pilih lokasi tujuan..."
@@ -99,7 +152,7 @@
             </Field>
           </div>
 
-          <div class="grid grid-cols-3 gap-4">
+          <div class="grid grid-cols-2 gap-4">
             <Field label="Durasi Total (Hari)" id="durasi_total" required>
               <input
                 v-model.number="formData.durasi_total"
@@ -110,22 +163,42 @@
               />
             </Field>
 
-            <Field label="Jumlah Pax" id="jumlah_pax" required>
+            <Field label="Sisa kuota (restock)" id="jumlah_pax" required>
               <input
                 v-model.number="formData.jumlah_pax"
                 type="number"
                 min="0"
                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Jumlah pax"
+                :placeholder="isEditMode ? 'Isi berapa slot yang ingin tersedia' : 'Kuota awal (slot tersedia)'"
               />
+              <p v-if="isEditMode && (jumlahPaxTerpakai != null || jumlahPaxSisa != null)" class="text-sm text-gray-600 mt-2">
+                Saat ini terpakai <strong>{{ jumlahPaxTerpakai ?? 0 }}</strong> jamaah.
+              </p>
+              <p class="text-xs text-gray-500 mt-1">
+                Isi berapa slot yang ingin tersedia (restock). Sistem hitung kapasitas otomatis. Contoh: isi 50 → kuota tersedia 50 slot.
+              </p>
             </Field>
+          </div>
           </div>
         </div>
 
-        <!-- Foto Paket Section -->
-        <div class="border-t pt-6">
+        <!-- 2. Foto Paket Section -->
+        <div id="section-foto" class="border border-gray-200 rounded-lg overflow-hidden bg-white">
+          <button
+            type="button"
+            class="section-header w-full flex items-center gap-3 px-4 py-3 text-left bg-gray-50 hover:bg-gray-100 transition-colors"
+            @click="openSections.foto = !openSections.foto"
+          >
+            <i class="fas fa-chevron-right transition-transform text-gray-500" :class="{ 'rotate-90': openSections.foto }"></i>
+            <span class="flex items-center gap-2">
+              <i class="fas fa-images text-green-600"></i>
+              <strong>2. Foto Paket</strong>
+            </span>
+            <span class="text-sm text-gray-500 ml-2">Maks. 5 foto</span>
+          </button>
+          <div v-show="openSections.foto" class="p-4 border-t border-gray-200">
           <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg font-medium">Foto Paket (Max 5)</h3>
+            <h3 class="text-base font-medium">Foto Paket (Max 5)</h3>
             <Button
               v-if="formData.foto_paket.length < 5"
               type="button"
@@ -198,12 +271,25 @@
               </div>
             </div>
           </div>
+          </div>
         </div>
 
-        <!-- Destinasi & Hotel Section -->
-        <div class="border-t pt-6">
+        <!-- 3. Destinasi & Hotel Section -->
+        <div id="section-destinasi" class="border border-gray-200 rounded-lg overflow-hidden bg-white">
+          <button
+            type="button"
+            class="section-header w-full flex items-center gap-3 px-4 py-3 text-left bg-gray-50 hover:bg-gray-100 transition-colors"
+            @click="openSections.destinasi = !openSections.destinasi"
+          >
+            <i class="fas fa-chevron-right transition-transform text-gray-500" :class="{ 'rotate-90': openSections.destinasi }"></i>
+            <span class="flex items-center gap-2">
+              <i class="fas fa-map-marked-alt text-amber-600"></i>
+              <strong>3. Destinasi & Hotel</strong>
+            </span>
+          </button>
+          <div v-show="openSections.destinasi" class="p-4 border-t border-gray-200">
           <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg font-medium">Destinasi & Hotel</h3>
+            <h3 class="text-base font-medium">Destinasi & Hotel</h3>
             <Button
               type="button"
               color="success"
@@ -295,12 +381,25 @@
               </div>
             </div>
           </div>
+          </div>
         </div>
 
-        <!-- Maskapai Section -->
-        <div class="border-t pt-6">
+        <!-- 4. Maskapai Section -->
+        <div id="section-maskapai" class="border border-gray-200 rounded-lg overflow-hidden bg-white">
+          <button
+            type="button"
+            class="section-header w-full flex items-center gap-3 px-4 py-3 text-left bg-gray-50 hover:bg-gray-100 transition-colors"
+            @click="openSections.maskapai = !openSections.maskapai"
+          >
+            <i class="fas fa-chevron-right transition-transform text-gray-500" :class="{ 'rotate-90': openSections.maskapai }"></i>
+            <span class="flex items-center gap-2">
+              <i class="fas fa-plane text-sky-600"></i>
+              <strong>4. Maskapai</strong>
+            </span>
+          </button>
+          <div v-show="openSections.maskapai" class="p-4 border-t border-gray-200">
           <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg font-medium">Maskapai</h3>
+            <h3 class="text-base font-medium">Maskapai</h3>
             <Button
               type="button"
               color="success"
@@ -349,12 +448,25 @@
               </button>
             </div>
           </div>
+          </div>
         </div>
 
-        <!-- Fasilitas Tambahan Section -->
-        <div class="border-t pt-6">
+        <!-- 5. Fasilitas Tambahan Section -->
+        <div id="section-fasilitas" class="border border-gray-200 rounded-lg overflow-hidden bg-white">
+          <button
+            type="button"
+            class="section-header w-full flex items-center gap-3 px-4 py-3 text-left bg-gray-50 hover:bg-gray-100 transition-colors"
+            @click="openSections.fasilitas = !openSections.fasilitas"
+          >
+            <i class="fas fa-chevron-right transition-transform text-gray-500" :class="{ 'rotate-90': openSections.fasilitas }"></i>
+            <span class="flex items-center gap-2">
+              <i class="fas fa-concierge-bell text-teal-600"></i>
+              <strong>5. Fasilitas Tambahan</strong>
+            </span>
+          </button>
+          <div v-show="openSections.fasilitas" class="p-4 border-t border-gray-200">
           <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg font-medium">Fasilitas Tambahan</h3>
+            <h3 class="text-base font-medium">Fasilitas Tambahan</h3>
             <Button
               type="button"
               color="success"
@@ -447,12 +559,25 @@
               </Button>
             </div>
           </div>
+          </div>
         </div>
 
-        <!-- Perlengkapan Section -->
-        <div class="border-t pt-6">
+        <!-- 6. Perlengkapan Section -->
+        <div id="section-perlengkapan" class="border border-gray-200 rounded-lg overflow-hidden bg-white">
+          <button
+            type="button"
+            class="section-header w-full flex items-center gap-3 px-4 py-3 text-left bg-gray-50 hover:bg-gray-100 transition-colors"
+            @click="openSections.perlengkapan = !openSections.perlengkapan"
+          >
+            <i class="fas fa-chevron-right transition-transform text-gray-500" :class="{ 'rotate-90': openSections.perlengkapan }"></i>
+            <span class="flex items-center gap-2">
+              <i class="fas fa-suitcase text-purple-600"></i>
+              <strong>6. Perlengkapan</strong>
+            </span>
+          </button>
+          <div v-show="openSections.perlengkapan" class="p-4 border-t border-gray-200">
           <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg font-medium">Perlengkapan</h3>
+            <h3 class="text-base font-medium">Perlengkapan</h3>
             <Button
               type="button"
               color="success"
@@ -542,12 +667,25 @@
               </Button>
             </div>
           </div>
+          </div>
         </div>
 
-        <!-- Keberangkatan Section -->
-        <div class="border-t pt-6">
+        <!-- 7. Keberangkatan Section -->
+        <div id="section-keberangkatan" class="border border-gray-200 rounded-lg overflow-hidden bg-white">
+          <button
+            type="button"
+            class="section-header w-full flex items-center gap-3 px-4 py-3 text-left bg-gray-50 hover:bg-gray-100 transition-colors"
+            @click="openSections.keberangkatan = !openSections.keberangkatan"
+          >
+            <i class="fas fa-chevron-right transition-transform text-gray-500" :class="{ 'rotate-90': openSections.keberangkatan }"></i>
+            <span class="flex items-center gap-2">
+              <i class="fas fa-calendar-alt text-orange-600"></i>
+              <strong>7. Jadwal Keberangkatan</strong>
+            </span>
+          </button>
+          <div v-show="openSections.keberangkatan" class="p-4 border-t border-gray-200">
           <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg font-medium">Jadwal Keberangkatan</h3>
+            <h3 class="text-base font-medium">Jadwal Keberangkatan</h3>
             <Button
               type="button"
               color="success"
@@ -629,12 +767,26 @@
               </div>
             </div>
           </div>
+          </div>
         </div>
 
-        <!-- Tipe Paket Umrah Section -->
-        <div class="border-t pt-6">
-          <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg font-medium">Tipe Paket (Tipe Kamar)</h3>
+        <!-- 8. Tipe Paket Umrah Section -->
+        <div id="section-tipe" class="border border-gray-200 rounded-lg overflow-hidden bg-white">
+          <button
+            type="button"
+            class="section-header w-full flex items-center gap-3 px-4 py-3 text-left bg-gray-50 hover:bg-gray-100 transition-colors"
+            @click="openSections.tipe = !openSections.tipe"
+          >
+            <i class="fas fa-chevron-right transition-transform text-gray-500" :class="{ 'rotate-90': openSections.tipe }"></i>
+            <span class="flex items-center gap-2">
+              <i class="fas fa-bed text-indigo-600"></i>
+              <strong>8. Tipe Paket (Tipe Kamar)</strong>
+            </span>
+            <span class="text-sm text-gray-500 ml-2">Harga & kapasitas per tipe kamar</span>
+          </button>
+          <div v-show="openSections.tipe" class="p-4 border-t border-gray-200">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="text-base font-medium">Tipe Paket (Tipe Kamar)</h3>
             <Button
               type="button"
               color="success"
@@ -648,79 +800,88 @@
             </Button>
           </div>
 
-          <div v-if="formData.tipe_paket_umrah.length === 0" class="text-gray-500 text-center py-4">
-            Belum ada tipe paket.
+          <div v-if="formData.tipe_paket_umrah.length === 0" class="text-gray-500 text-center py-4 text-sm">
+            Belum ada tipe paket. Klik "Tambah Tipe" untuk menambah.
           </div>
 
-          <div
-            v-for="(tipe, idx) in formData.tipe_paket_umrah"
-            :key="idx"
-            class="mb-6 p-4 bg-gray-50 rounded-md"
-          >
-            <div class="flex items-center justify-between mb-4">
-              <h4 class="font-medium">Tipe {{ idx + 1 }}</h4>
-              <button
-                type="button"
-                @click="removeTipePaket(idx)"
-                class="text-red-600 hover:text-red-800"
-              >
-                <i class="fas fa-trash"></i>
-              </button>
-            </div>
-
-            <div class="space-y-4">
-              <Field label="Tipe Kamar" :id="`tipe_kamar_${idx}`" required>
-                <AutoComplete
-                  v-model="tipe.tipe_kamar"
-                  :suggestions="d_TipeKamar"
-                  @complete="fetchTipeKamar($event)"
-                  :optionLabel="'label'"
-                  :dropdown="true"
-                  :minLength="1"
-                  :appendTo="'body'"
-                  :field="'label'"
-                  placeholder="Pilih tipe kamar..."
-                  class="w-full mt-2"
-                />
-              </Field>
-
-              <div class="grid grid-cols-2 gap-4">
-                <Field label="Harga Per Pax (Rp)" :id="`harga_pax_${idx}`" required>
-                  <input
-                    v-model.number="tipe.harga_per_pax"
-                    type="number"
-                    min="0"
-                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Harga per pax"
-                  />
-                </Field>
-
-                <Field label="Kapasitas Total" :id="`kapasitas_${idx}`" required>
-                  <input
-                    v-model.number="tipe.kapasitas_total"
-                    type="number"
-                    min="0"
-                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Kapasitas total"
-                  />
-                </Field>
-              </div>
-
-              <div class="flex items-center gap-2">
-                <input
-                  v-model="tipe.is_active"
-                  type="checkbox"
-                  :id="`tipe_active_${idx}`"
-                  class="rounded"
-                />
-                <label :for="`tipe_active_${idx}`" class="text-sm">Aktif</label>
-              </div>
-            </div>
+          <div v-else class="overflow-x-auto rounded-lg border border-gray-200">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="bg-gray-100 text-left text-gray-700 font-medium">
+                  <th class="px-3 py-2 rounded-tl-lg w-[35%]">Tipe kamar</th>
+                  <th class="px-3 py-2 w-[25%]">Harga per pax (Rp)</th>
+                  <th class="px-3 py-2 w-[15%]">Kapasitas</th>
+                  <th class="px-3 py-2 w-[12%] text-center">Aktif</th>
+                  <th class="px-3 py-2 rounded-tr-lg w-[13%] text-center">Aksi</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  v-for="(tipe, idx) in formData.tipe_paket_umrah"
+                  :key="idx"
+                  class="border-t border-gray-200 hover:bg-gray-50/50"
+                >
+                  <td class="px-3 py-2 align-middle">
+                    <AutoComplete
+                      v-model="tipe.tipe_kamar"
+                      :suggestions="d_TipeKamar"
+                      @complete="fetchTipeKamar($event)"
+                      :optionLabel="'label'"
+                      :dropdown="true"
+                      :minLength="1"
+                      :appendTo="'body'"
+                      :field="'label'"
+                      placeholder="Pilih tipe kamar..."
+                      class="w-full"
+                    />
+                  </td>
+                  <td class="px-3 py-2 align-middle">
+                    <input
+                      v-model.number="tipe.harga_per_pax"
+                      type="number"
+                      min="0"
+                      :id="`harga_pax_${idx}`"
+                      class="w-full px-2 py-1.5 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="0"
+                    />
+                  </td>
+                  <td class="px-3 py-2 align-middle">
+                    <input
+                      v-model.number="tipe.kapasitas_total"
+                      type="number"
+                      min="0"
+                      :id="`kapasitas_${idx}`"
+                      class="w-full px-2 py-1.5 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="0"
+                    />
+                  </td>
+                  <td class="px-3 py-2 align-middle text-center">
+                    <input
+                      v-model="tipe.is_active"
+                      type="checkbox"
+                      :id="`tipe_active_${idx}`"
+                      class="rounded"
+                    />
+                  </td>
+                  <td class="px-3 py-2 align-middle text-center">
+                    <button
+                      type="button"
+                      @click="removeTipePaket(idx)"
+                      class="text-red-600 hover:text-red-800 p-1"
+                      title="Hapus baris"
+                    >
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
           </div>
         </div>
 
-        <!-- Action Buttons -->
-        <div class="flex gap-4 pt-6 border-t">
+        <!-- Action Buttons (duplikat di bawah untuk yang scroll sampai bawah) -->
+        <div class="flex gap-4 pt-6 border-t mt-6">
           <Button type="button" @click="goBack()" outlined color="secondary"> Batal </Button>
           <Button type="submit" color="success" :loading="isLoadingSubmit"> Simpan </Button>
         </div>
@@ -745,6 +906,39 @@ const isLoadingData = ref(false)
 const isLoadingSubmit = ref(false)
 const paketId = computed(() => route.params.id as string | undefined)
 const isEditMode = computed(() => !!paketId.value)
+const jumlahPaxTerpakai = ref<number | null>(null)
+const jumlahPaxSisa = ref<number | null>(null)
+
+// UX: section accordion & quick jump
+const sectionList: Record<string, { short: string }> = {
+  info: { short: '1. Info' },
+  foto: { short: '2. Foto' },
+  destinasi: { short: '3. Destinasi' },
+  maskapai: { short: '4. Maskapai' },
+  fasilitas: { short: '5. Fasilitas' },
+  perlengkapan: { short: '6. Perlengkapan' },
+  keberangkatan: { short: '7. Jadwal' },
+  tipe: { short: '8. Tipe Kamar' },
+}
+const openSections = ref<Record<string, boolean>>({
+  info: true,
+  foto: true,
+  destinasi: false,
+  maskapai: false,
+  fasilitas: false,
+  perlengkapan: false,
+  keberangkatan: false,
+  tipe: false,
+})
+function scrollToSection(key: string) {
+  openSections.value[key] = true
+  setTimeout(() => {
+    document.getElementById('section-' + key)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }, 100)
+}
+function toggleAllSections(open: boolean) {
+  openSections.value = { ...openSections.value, ...Object.fromEntries(Object.keys(sectionList).map((k) => [k, open])) }
+}
 
 // Dropdown data
 const d_Musim = ref([])
@@ -855,11 +1049,20 @@ const fetchData = async () => {
   try {
     isLoadingData.value = true
     const response = await api.get(`/sistem-admin/paket-umrah/get-paket-umrah/${paketId.value}`)
-    // API mengembalikan { status, message, data: { id, keberangkatan, ... } }; pakai payload dalam .data
-    const data = response?.data ?? response
+    // useApi sudah me-return response.data.
+    // Endpoint ini mereturn { status, message, data: {...} }.
+    // Jadi kita ambil payload sebenarnya dari properti .data jika ada.
+    const wrapped = response ?? {}
+    const data = (wrapped && typeof wrapped === 'object' && 'data' in wrapped
+      ? (wrapped as { data: any }).data
+      : wrapped) as any
 
     const toBool = (v: unknown) => v === true || v === 1 || v === '1'
 
+    jumlahPaxTerpakai.value = data.jumlah_pax_terpakai != null ? Number(data.jumlah_pax_terpakai) : null
+    jumlahPaxSisa.value = data.jumlah_pax_sisa != null ? Number(data.jumlah_pax_sisa) : null
+    // Field = sisa kuota (restock). Edit: tampilkan sisa saat ini. Create: tampilkan kapasitas awal.
+    const jumlahPaxForField = data.jumlah_pax_sisa != null ? Number(data.jumlah_pax_sisa) : Number(data.jumlah_pax)
     formData.value = {
       id: data.id,
       nama_paket: data.nama_paket,
@@ -872,7 +1075,7 @@ const fetchData = async () => {
       },
       lokasi_tujuan: { value: data.lokasi_tujuan_id, label: data.lokasi_tujuan || '' },
       durasi_total: data.durasi_total,
-      jumlah_pax: data.jumlah_pax,
+      jumlah_pax: jumlahPaxForField,
       harga_termurah: parseFloat(data.harga_termurah),
       harga_termahal: parseFloat(data.harga_termahal),
       foto_paket: (data.foto_paket || []).map((foto: any) => ({
@@ -884,15 +1087,18 @@ const fetchData = async () => {
         isChanged: false,
       })),
       destinasi_hotel:
-        data.destinasi.map((dest: any, idx: number) => ({
-          nama_kota: { value: dest.id_kota, label: dest.nama_kota },
+        (data.destinasi || []).map((dest: any, idx: number) => ({
+          nama_kota: {
+            value: dest.kota_id ?? dest.id_kota ?? null,
+            label: dest.nama_kota || '',
+          },
           durasi: dest.durasi,
           nama_hotel: {
-            value: data.hotel[idx]?.id_hotel,
-            label: data.hotel[idx]?.nama_hotel || '',
+            value: data.hotel?.[idx]?.id_hotel ?? null,
+            label: data.hotel?.[idx]?.nama_hotel || '',
           },
-          bintang: parseFloat(data.hotel[idx]?.bintang) || 0,
-        })) || [],
+          bintang: parseFloat(data.hotel?.[idx]?.bintang ?? '0') || 0,
+        })),
       maskapai: (data.maskapai || []).map((item: any) => ({
         nama_maskapai: { value: item.value_maskapai || item.id_maskapai, label: item.nama_maskapai },
         kode_iata: item.kode_iata,
@@ -927,7 +1133,7 @@ const fetchData = async () => {
             value: tipe.tipe_kamar_id ?? tipe.paket_umrah_tipe_id,
             label: tipe.tipe_kamar || '',
           },
-          is_active: toBool(tipe.is_active),
+          is_active: typeof tipe.is_active === 'boolean' ? tipe.is_active : toBool(tipe.is_active),
           harga_per_pax: tipe.harga_per_pax,
           kapasitas_total: tipe.kapasitas_total,
         })) || [],
@@ -938,6 +1144,7 @@ const fetchData = async () => {
     router.back()
   } finally {
     isLoadingData.value = false
+    if (isEditMode.value) toggleAllSections(true)
   }
 }
 
@@ -1140,7 +1347,10 @@ const submitForm = async () => {
         label: formData.value.lokasi_tujuan.label,
       },
       durasi_total: Number(formData.value.durasi_total),
-      jumlah_pax: Number(formData.value.jumlah_pax),
+      // Backend terima kapasitas total. Edit: kapasitas = terpakai + sisa (restock). Create: nilai = kapasitas awal.
+      jumlah_pax: isEditMode.value
+        ? (jumlahPaxTerpakai.value ?? 0) + Number(formData.value.jumlah_pax)
+        : Number(formData.value.jumlah_pax),
       destinasi_hotel: formData.value.destinasi_hotel.map((item) => ({
         nama_kota: {
           value: item.nama_kota.value,

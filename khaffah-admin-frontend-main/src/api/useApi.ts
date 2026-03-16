@@ -38,22 +38,14 @@ export function useApi() {
 
   api.interceptors.response.use(
     (response) => {
-      // ✅ PERBAIKAN: Jangan transform blob response
+      // ✅ Jangan transform blob response
       if (response.config.responseType === 'blob') {
-        return response // Return full response untuk blob
+        return response // full response untuk blob (preview dokumen, dsb.)
       }
-      return response.data // Return data langsung untuk JSON
+      return response.data // untuk JSON, balikin langsung body-nya
     },
     (error) => {
-      // kalau backend kasih 401 -> auto logout
-      if (error.response?.status === 401) {
-        useStorage('user_session', '').value = ''
-        userSession.logoutUser()
-        
-        window.location.href = '/auth/login'
-      }
-
-      // lempar error ke calling
+      // ❌ JANGAN auto-logout di sini, biarkan caller / route-guard yang memutuskan
       return Promise.reject(error)
     }
   )

@@ -2,13 +2,30 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Plus, ChevronRight, Search, Loader2 } from "lucide-react";
 import { useGetJamaahList } from "@/query/jamaah";
+
+/** Ambil pesan error dari response API (axios) atau Error biasa */
+function getApiErrorMessage(err: Error | null): string {
+  if (!err) return "Terjadi kesalahan. Silakan coba lagi.";
+  const ax = err as { response?: { data?: { message?: string } } };
+  if (ax.response?.data?.message && typeof ax.response.data.message === "string") {
+    return ax.response.data.message;
+  }
+  return err.message || "Terjadi kesalahan. Silakan coba lagi.";
+}
 
 export default function KelolaJamaahPage() {
   const { data: apiData, isLoading, isError, error } = useGetJamaahList();
   const [q, setQ] = useState("");
+  const [mounted, setMounted] = useState(false);
+
+  // Hindari hydration mismatch: query hanya jalan di client, jadi server & client
+  // harus render hal yang sama dulu (loading), baru setelah mount pakai data asli.
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Map API data to display format
   const data = useMemo(() => {
@@ -25,7 +42,7 @@ export default function KelolaJamaahPage() {
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return list.map((item: any) => ({
-      id: item.id,
+      id: String(item.id ?? ""),
       nama: item.nama_lengkap || "",
       nik: item.nomor_identitas || "",
       jenis: "Dewasa" as const, // Default for now, adjust based on API if available
@@ -40,7 +57,11 @@ export default function KelolaJamaahPage() {
   const filtered = useMemo(() => {
     const query = q.trim().toLowerCase();
     if (!query) return data;
-    return data.filter((d: { nama: string }) => d.nama.toLowerCase().includes(query));
+    return data.filter(
+      (d: { nama: string; nik: string }) =>
+        d.nama.toLowerCase().includes(query) ||
+        (d.nik && d.nik.toLowerCase().includes(query))
+    );
   }, [q, data]);
 
   return (
@@ -77,10 +98,10 @@ export default function KelolaJamaahPage() {
         />
       </div>
 
-      {isLoading ? (
+      {!mounted || isLoading ? (
         <LoadingState />
       ) : isError ? (
-        <ErrorState error={error} />
+        <ErrorState error={error} apiMessage={getApiErrorMessage(error)} />
       ) : data.length === 0 ? (
         <EmptyState />
       ) : (
@@ -218,7 +239,14 @@ function LoadingState() {
   );
 }
 
-function ErrorState({ error }: { error: Error | null }) {
+function ErrorState({
+  error,
+  apiMessage,
+}: {
+  error: Error | null;
+  apiMessage?: string;
+}) {
+  const message = apiMessage ?? error?.message ?? "Terjadi kesalahan. Silakan coba lagi.";
   return (
     <div className="rounded-2xl border border-border bg-card">
       <div className="grid min-h-[320px] place-items-center p-6 sm:min-h-[380px] md:min-h-[420px]">
@@ -242,7 +270,7 @@ function ErrorState({ error }: { error: Error | null }) {
             Gagal memuat data jemaah
           </p>
           <p className="mt-1 text-[12px] text-khaffah-neutral-dark">
-            {error?.message || "Terjadi kesalahan. Silakan coba lagi."}
+            {message}
           </p>
         </div>
       </div>

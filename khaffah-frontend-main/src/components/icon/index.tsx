@@ -427,6 +427,7 @@ export const Icon = (props: Props) => {
           width="14"
           height="14"
           viewBox="0 0 14 14"
+          fill="currentColor"
           xmlns="http://www.w3.org/2000/svg"
           className={props.className}
         >
@@ -443,7 +444,7 @@ export const Icon = (props: Props) => {
           width="14"
           height="14"
           viewBox="0 0 14 14"
-          fill="none"
+          fill="currentColor"
           xmlns="http://www.w3.org/2000/svg"
           className={props.className}
         >
@@ -847,7 +848,7 @@ export const Icon = (props: Props) => {
           width="16"
           height="18"
           viewBox="0 0 16 18"
-          fill="none"
+          fill="currentColor"
           xmlns="http://www.w3.org/2000/svg"
           className={props.className}
         >
@@ -978,13 +979,12 @@ export const Icon = (props: Props) => {
           width="18"
           height="18"
           viewBox="0 0 18 18"
-          fill="none"
+          fill="currentColor"
           xmlns="http://www.w3.org/2000/svg"
           className={props.className}
         >
           <path
             d="M15.4167 1.8H14.5V0.9C14.5 0.405 14.0875 0 13.5833 0C13.0792 0 12.6667 0.405 12.6667 0.9V1.8H5.33333V0.9C5.33333 0.405 4.92083 0 4.41667 0C3.9125 0 3.5 0.405 3.5 0.9V1.8H2.58333C1.56583 1.8 0.759167 2.61 0.759167 3.6L0.75 16.2C0.75 16.6774 0.943154 17.1352 1.28697 17.4728C1.63079 17.8104 2.0971 18 2.58333 18H15.4167C16.425 18 17.25 17.19 17.25 16.2V3.6C17.25 2.61 16.425 1.8 15.4167 1.8ZM15.4167 15.3C15.4167 15.795 15.0042 16.2 14.5 16.2H3.5C2.99583 16.2 2.58333 15.795 2.58333 15.3V6.3H15.4167V15.3ZM4.41667 8.1H6.25V9.9H4.41667V8.1ZM8.08333 8.1H9.91667V9.9H8.08333V8.1ZM11.75 8.1H13.5833V9.9H11.75V8.1Z"
-            fill="#D1D5D8"
           />
         </svg>
       );
@@ -995,7 +995,7 @@ export const Icon = (props: Props) => {
           width="18"
           height="18"
           viewBox="0 0 18 18"
-          fill="none"
+          fill="currentColor"
           xmlns="http://www.w3.org/2000/svg"
           className={props.className}
         >

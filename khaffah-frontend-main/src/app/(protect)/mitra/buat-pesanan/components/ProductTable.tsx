@@ -133,7 +133,7 @@ const ProductTable: React.FC<ProductTableProps> = ({
                 // Data rows
                 currentData.map((row) => (
                   <tr 
-                    key={row.id} 
+                    key={row.packageId} 
                     className="hover:bg-emerald-50/50 transition-colors duration-150"
                   >
                     <td className="px-6 py-4">

@@ -2,7 +2,6 @@
 
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { LevelProgress } from "@/components/pages/mitra/dashboard/LevelProgress";
 import { NotificationsRow } from "@/components/pages/mitra/dashboard/NotificationsRow";
 import {
   OrdersFilterChips,
@@ -84,7 +83,9 @@ function mapOrderToRow(order: Order): MitraOrderRow {
     id: String(order.id),
     kode_transaksi: order.kode_transaksi ?? "-",
     name,
+    namaPemesan: order.nama_lengkap ?? undefined,
     status: mapStatusToDisplay(order.status_kode),
+    statusPembayaranNama: order.status_pembayaran_nama ?? undefined,
     days,
     depart,
     returnDate,
@@ -99,7 +100,12 @@ export default function MitraDashboardPage() {
   const [sortBy, setSortBy] = useState<SortOption>(null);
 
   const { data: user } = useMe();
-  const { data: dashboardData, isLoading: dashboardLoading } = useQuery({
+  const {
+    data: dashboardData,
+    isLoading: dashboardLoading,
+    isError: dashboardError,
+    refetch: refetchDashboard,
+  } = useQuery({
     queryKey: ["mitra-dashboard"],
     queryFn: async () => {
       const res = await fetch("/api/mitra/dashboard", {
@@ -113,7 +119,12 @@ export default function MitraDashboardPage() {
     staleTime: 60 * 1000,
   });
 
-  const { data: ordersData, isLoading: ordersLoading } = useQuery({
+  const {
+    data: ordersData,
+    isLoading: ordersLoading,
+    isError: ordersError,
+    refetch: refetchOrders,
+  } = useQuery({
     queryKey: ["mitra-orders", 1, 50],
     queryFn: async () => {
       const res = await fetch(
@@ -139,11 +150,46 @@ export default function MitraDashboardPage() {
     setSortBy(null);
   };
 
+  const hasError = dashboardError || ordersError;
+
   return (
     <div className="space-y-4">
-      <WelcomeCard name={user?.nama_lengkap ?? "…"} />
+      {hasError && (
+        <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+          <p className="font-medium">
+            {dashboardError && ordersError
+              ? "Gagal memuat dashboard dan daftar pesanan."
+              : dashboardError
+                ? "Gagal memuat data dashboard."
+                : "Gagal memuat daftar pesanan."}
+          </p>
+          <p className="mt-1 text-amber-700">
+            Silakan coba lagi atau periksa koneksi Anda.
+          </p>
+          <div className="mt-2 flex gap-2">
+            {dashboardError && (
+              <button
+                type="button"
+                onClick={() => refetchDashboard()}
+                className="rounded-md bg-amber-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-amber-700"
+              >
+                Muat ulang dashboard
+              </button>
+            )}
+            {ordersError && (
+              <button
+                type="button"
+                onClick={() => refetchOrders()}
+                className="rounded-md bg-amber-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-amber-700"
+              >
+                Muat ulang pesanan
+              </button>
+            )}
+          </div>
+        </div>
+      )}
 
-      <LevelProgress />
+      <WelcomeCard name={user?.nama_lengkap ?? "…"} />
 
       <StatsCards
         totalJamaah={dashboard.total_jamaah}

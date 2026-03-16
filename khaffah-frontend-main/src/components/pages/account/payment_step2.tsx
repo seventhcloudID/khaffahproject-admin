@@ -144,7 +144,7 @@ export default function PaymentStep2({
                 type="button"
                 variant="outline"
                 size="icon"
-                className="rounded-lg border-teal-200 text-teal-600 hover:bg-teal-50 shrink-0"
+                className="rounded-lg border-khaffah-primary/30 text-khaffah-primary hover:bg-khaffah-primary/10 shrink-0"
                 onClick={copyAccountNumber}
               >
                 <Copy className="w-4 h-4" />
@@ -159,7 +159,7 @@ export default function PaymentStep2({
           <p className="text-12 text-gray-600 mb-1">
             Jumlah yang Harus Ditransfer:
           </p>
-          <p className="text-20 font-bold text-orange-500">
+          <p className="text-20 font-bold text-khaffah-secondary">
             {formatRupiah(nominalTransfer)}
           </p>
         </CardContent>
@@ -169,7 +169,7 @@ export default function PaymentStep2({
         <CardContent className="p-4 md:p-6">
           <h2 className="text-14 font-bold text-gray-900 mb-3">Bukti Transfer</h2>
           <div
-            className="border-2 border-dashed border-gray-300 rounded-xl p-6 flex flex-col items-center justify-center text-center min-h-[180px] cursor-pointer hover:border-teal-400 hover:bg-gray-50/50 transition-colors"
+            className="border-2 border-dashed border-gray-300 rounded-xl p-6 flex flex-col items-center justify-center text-center min-h-[180px] cursor-pointer hover:border-khaffah-primary/50 hover:bg-khaffah-primary/5 transition-colors"
             onClick={() => inputRef.current?.click()}
           >
             <input
@@ -199,7 +199,7 @@ export default function PaymentStep2({
                   type="button"
                   variant="secondary"
                   size="sm"
-                  className="bg-teal-50 text-teal-700 hover:bg-teal-100"
+                  className="bg-khaffah-primary/10 text-khaffah-primary hover:bg-khaffah-primary/20"
                   onClick={(e) => {
                     e.stopPropagation();
                     inputRef.current?.click();
@@ -211,7 +211,7 @@ export default function PaymentStep2({
             )}
           </div>
           <Button
-            className="w-full h-12 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-14 mt-6"
+            className="w-full h-12 rounded-xl bg-khaffah-primary hover:bg-khaffah-primary/90 text-white font-bold text-14 mt-6"
             onClick={handleSubmit}
             disabled={!file || uploading}
           >

@@ -1,0 +1,46 @@
+# Docker Compose untuk PRODUCTION
+# Jalankan: docker compose -f docker-compose.prod.yml up -d
+# Jangan lupa buat .env dan set APP_KEY, APP_URL, DB_* sesuai environment production.
+
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    container_name: khaffah_app_prod
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    environment:
+      - APP_ENV=production
+      - APP_DEBUG=false
+      - APP_URL=${APP_URL:-https://api.example.com}
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_DATABASE=${DB_DATABASE:-khaffah_db}
+      - DB_USERNAME=${DB_USERNAME:-khaffah_user}
+      - DB_PASSWORD=${DB_PASSWORD}
+    env_file:
+      - .env
+
+  db:
+    image: postgres:15-alpine
+    container_name: khaffah_db_prod
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_DATABASE:-khaffah_db}
+      POSTGRES_USER: ${DB_USERNAME:-khaffah_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - db_data_prod:/var/lib/postgresql/data
+    # Port 5432 tidak di-expose ke host agar hanya diakses dari container app.
+    # Jika butuh akses dari host (backup/pgAdmin), uncomment:
+    # ports:
+    #   - "5432:5432"
+
+volumes:
+  db_data_prod:

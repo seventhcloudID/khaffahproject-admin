@@ -84,6 +84,10 @@ export interface UmrahPackageDetail {
   durasi_total: number;
   jumlah_pax: number;
   harga_termurah: string;
+  /** Harga asli termurah sebelum diskon (hanya ada jika user mitra dengan level) */
+  harga_asli_termurah?: number;
+  /** Persen potongan berdasarkan level mitra (0 = tidak ada diskon) */
+  persen_potongan_mitra?: number;
   hotel: Hotel[];
   maskapai: Maskapai[];
   fasilitas_tambahan: FasilitasTambahan[];

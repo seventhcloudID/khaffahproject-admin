@@ -21,6 +21,8 @@ interface Props {
   api: CarouselApi;
   onConfirm: () => void | Promise<void>;
   isSubmitting?: boolean;
+  /** Saat true (checkout mitra), blok "Pilih Metode Pembayaran Anda" disembunyikan — pembayaran di halaman /mitra/pesanan/[id]. */
+  isMitraCheckout?: boolean;
 }
 
 const PaymentDetailForm = (props: Props) => {
@@ -456,29 +458,36 @@ const PaymentDetailForm = (props: Props) => {
                 {formatRupiah(totalHarga)}
               </p>
             </div>
-            <div className="rounded-2xl space-y-3 border p-4">
-              <div>
-                <p className="text-14 md:text-16 lg:text-20 font-bold">
-                  Pilih Metode Pembayaran Anda
-                </p>
-                <p className="text-12 md:text-14 lg:text-16 text-khaffah-neutral-dark">
-                  Anda dapat membayar sebagian biaya di awal dan melunasi
-                  sisanya nanti.
-                </p>
+            {!props.isMitraCheckout && (
+              <div className="rounded-2xl space-y-3 border p-4">
+                <div>
+                  <p className="text-14 md:text-16 lg:text-20 font-bold">
+                    Pilih Metode Pembayaran Anda
+                  </p>
+                  <p className="text-12 md:text-14 lg:text-16 text-khaffah-neutral-dark">
+                    Anda dapat membayar sebagian biaya di awal dan melunasi
+                    sisanya nanti.
+                  </p>
+                </div>
+                <div>
+                  <PaymentAmount />
+                </div>
+                <div className="w-full border-b border-dashed" />
+                <div className="flex justify-between w-full">
+                  <p className="text-12 md:text-14 lg:text-16 font-bold">
+                    Sisa Tagihan
+                  </p>
+                  <p className="text-12 md:text-14 lg:text-16 font-bold">
+                    {formatRupiah(sisaTagihan)}
+                  </p>
+                </div>
               </div>
-              <div>
-                <PaymentAmount />
-              </div>
-              <div className="w-full border-b border-dashed" />
-              <div className="flex justify-between w-full">
-                <p className="text-12 md:text-14 lg:text-16 font-bold">
-                  Sisa Tagihan
-                </p>
-                <p className="text-12 md:text-14 lg:text-16 font-bold">
-                  {formatRupiah(sisaTagihan)}
-                </p>
-              </div>
-            </div>
+            )}
+            {props.isMitraCheckout && (
+              <p className="text-12 md:text-14 lg:text-16 text-khaffah-neutral-dark">
+                Pembayaran dilakukan di halaman detail pesanan setelah Anda mengkonfirmasi.
+              </p>
+            )}
           </div>
         </CardContent>
         <CardContent>

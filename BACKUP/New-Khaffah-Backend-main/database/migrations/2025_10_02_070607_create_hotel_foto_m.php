@@ -1,0 +1,32 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('hotel_foto_m', function (Blueprint $table) {
+            $table->id();
+            $table->boolean('is_active')->default(true);
+            $table->foreignId('hotel_id')->constrained('hotel_m')->cascadeOnDelete();
+            $table->text('url_foto');
+            $table->integer('urutan')->default(1);
+            $table->timestamps();
+
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('hotel_foto_m');
+    }
+};

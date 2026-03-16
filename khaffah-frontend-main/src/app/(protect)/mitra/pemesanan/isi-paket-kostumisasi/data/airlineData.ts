@@ -29,7 +29,7 @@ export const airlinesData: Airline[] = [
   {
     id: "1",
     name: "Garuda Indonesia",
-    logo: "https://example.com/garuda-logo.jpg",
+    logo: "",
     description: "Maskapai nasional dengan pelayanan terbaik",
     routes: [
       {
@@ -55,7 +55,7 @@ export const airlinesData: Airline[] = [
   {
     id: "2",
     name: "Saudi Airlines",
-    logo: "https://example.com/saudi-logo.jpg",
+    logo: "",
     description: "Maskapai resmi Arab Saudi",
     routes: [
       {
@@ -75,7 +75,7 @@ export const airlinesData: Airline[] = [
   {
     id: "3",
     name: "Emirates",
-    logo: "https://example.com/emirates-logo.jpg",
+    logo: "",
     description: "Maskapai internasional dari Dubai",
     routes: [
       {
@@ -89,7 +89,7 @@ export const airlinesData: Airline[] = [
   {
     id: "4",
     name: "Qatar Airways",
-    logo: "https://example.com/qatar-logo.jpg",
+    logo: "",
     description: "Maskapai 5 bintang dari Qatar",
     routes: [
       {

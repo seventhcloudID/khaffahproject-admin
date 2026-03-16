@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: khaffah_app
+    restart: unless-stopped
+    volumes:
+      - .:/var/www/html
+      - /var/www/html/vendor
+      - /var/www/html/node_modules
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    environment:
+      - APP_ENV=local
+      - APP_DEBUG=true
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_DATABASE=khaffah_db
+      - DB_USERNAME=khaffah_user
+      - DB_PASSWORD=secret
+
+  db:
+    image: postgres:15-alpine
+    container_name: khaffah_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: khaffah_db
+      POSTGRES_USER: khaffah_user
+      POSTGRES_PASSWORD: secret
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+volumes:
+  db_data:

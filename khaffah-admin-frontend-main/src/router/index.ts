@@ -17,17 +17,30 @@ import UserManagement from '@/views/sistem-admin/User-Management.vue'
 import DataMitra from '@/views/sistem-admin/Data-Mitra.vue'
 import PendaftaranMitra from '@/views/Pendaftaran/Pendaftaran-mitra.vue'
 import MonitoringOperasional from '@/views/Manajemen/Monitoring-Operasional.vue'
+import JurnalTransaksi from '@/views/Akuntansi/Jurnal-Transaksi.vue'
+import LaporanKeuangan from '@/views/Akuntansi/Laporan-Keuangan.vue'
 import MasterHotelForm from '@/views/Paket/Master-Hotel-Form.vue'
 import MasterMaskapaiForm from '@/views/Paket/Master-Maskapai-Form.vue'
 import MasterKeberangkatanForm from '@/views/Paket/Master-Keberangkatan-Form.vue'
+import MasterKepulanganForm from '@/views/Paket/Master-Kepulangan-Form.vue'
 import MasterLevelMitra from '@/views/Paket/Master-Level-Mitra.vue'
 import MasterLevelMitraForm from '@/views/Paket/Master-Level-Mitra-Form.vue'
+import MasterRekening from '@/views/Paket/Master-Rekening.vue'
+import MasterRekeningForm from '@/views/Paket/Master-Rekening-Form.vue'
+import MasterVisa from '@/views/Paket/Master-Visa.vue'
+import MasterVisaForm from '@/views/Paket/Master-Visa-Form.vue'
+import MasterBadalUmrah from '@/views/Paket/Master-Badal-Umrah.vue'
+import MasterBadalUmrahForm from '@/views/Paket/Master-Badal-Umrah-Form.vue'
+import MasterBadalHaji from '@/views/Paket/Master-Badal-Haji.vue'
+import MasterBadalHajiForm from '@/views/Paket/Master-Badal-Haji-Form.vue'
+import MasterLAUmrah from '@/views/Paket/Master-LA-Umrah.vue'
 import PaketRequest from '@/views/paket-request.vue'
 import DetailTransaksi from '@/views/Daftar-Transaksi/Detail-Transaksi.vue'
 import PemesananPaketUmrah from '@/views/Daftar-Transaksi/Pemesanan-Paket-Umrah.vue'
 import PendaftaranHaji from '@/views/Daftar-Transaksi/Pendaftaran-Haji.vue'
 import PeminatEdutrip from '@/views/Daftar-Transaksi/Peminat-Edutrip.vue'
 import PermintaanCustom from '@/views/Daftar-Transaksi/Permintaan-Custom.vue'
+import TransaksiKomponen from '@/views/Daftar-Transaksi/Transaksi-Komponen.vue'
 import DaftarRefund from '@/views/Daftar-Transaksi/Daftar-Refund.vue'
 import { useApi } from '@/api/useApi'
 import { useUserSession } from '@/stores/userSession'
@@ -160,6 +173,23 @@ const routes: RouteRecordRaw[] = [
     meta: { requiresAuth: true, title: 'Permintaan Custom' },
   },
   {
+    path: '/Daftar-Transaksi/Transaksi-Komponen',
+    name: 'transaksi-komponen',
+    component: TransaksiKomponen,
+    meta: { requiresAuth: true, title: 'Transaksi Komponen' },
+  },
+  {
+    path: '/Daftar-Transaksi/Transaksi-Komponen/:id',
+    name: 'transaksi-komponen-detail',
+    component: DetailTransaksi,
+    meta: {
+      requiresAuth: true,
+      title: 'Detail Transaksi Komponen',
+      backPath: '/Daftar-Transaksi/Transaksi-Komponen',
+      detailType: 'custom',
+    },
+  },
+  {
     path: '/Daftar-Transaksi/Daftar-Refund',
     name: 'daftar-refund',
     component: DaftarRefund,
@@ -248,6 +278,12 @@ const routes: RouteRecordRaw[] = [
     meta: { requiresAuth: true, title: 'Form Keberangkatan' },
   },
   {
+    path: '/Paket/Master-Kepulangan/form/:id?',
+    name: 'master-kepulangan-form',
+    component: MasterKepulanganForm,
+    meta: { requiresAuth: true, title: 'Form Kepulangan' },
+  },
+  {
     path: '/Paket/Master-Level-Mitra',
     name: 'master-level-mitra',
     component: MasterLevelMitra,
@@ -258,6 +294,60 @@ const routes: RouteRecordRaw[] = [
     name: 'master-level-mitra-form',
     component: MasterLevelMitraForm,
     meta: { requiresAuth: true, title: 'Form Level Mitra' },
+  },
+  {
+    path: '/Paket/Master-Rekening',
+    name: 'master-rekening',
+    component: MasterRekening,
+    meta: { requiresAuth: true, title: 'Master Rekening' },
+  },
+  {
+    path: '/Paket/Master-Rekening/form/:id?',
+    name: 'master-rekening-form',
+    component: MasterRekeningForm,
+    meta: { requiresAuth: true, title: 'Form Rekening' },
+  },
+  {
+    path: '/Paket/Master-Visa',
+    name: 'master-visa',
+    component: MasterVisa,
+    meta: { requiresAuth: true, title: 'Master Visa' },
+  },
+  {
+    path: '/Paket/Master-Visa/form/:id?',
+    name: 'master-visa-form',
+    component: MasterVisaForm,
+    meta: { requiresAuth: true, title: 'Form Visa' },
+  },
+  {
+    path: '/Paket/Master-Badal-Umrah',
+    name: 'master-badal-umrah',
+    component: MasterBadalUmrah,
+    meta: { requiresAuth: true, title: 'Master Badal Umrah' },
+  },
+  {
+    path: '/Paket/Master-Badal-Umrah/form/:id?',
+    name: 'master-badal-umrah-form',
+    component: MasterBadalUmrahForm,
+    meta: { requiresAuth: true, title: 'Form Badal Umrah' },
+  },
+  {
+    path: '/Paket/Master-Badal-Haji',
+    name: 'master-badal-haji',
+    component: MasterBadalHaji,
+    meta: { requiresAuth: true, title: 'Master Badal Haji' },
+  },
+  {
+    path: '/Paket/Master-Badal-Haji/form/:id?',
+    name: 'master-badal-haji-form',
+    component: MasterBadalHajiForm,
+    meta: { requiresAuth: true, title: 'Form Badal Haji' },
+  },
+  {
+    path: '/Paket/Master-LA-Umrah',
+    name: 'master-la-umrah',
+    component: MasterLAUmrah,
+    meta: { requiresAuth: true, title: 'Master LA Umrah' },
   },
   {
     path: '/sistem-admin/Setting-Tentang-Kami',
@@ -315,6 +405,18 @@ const routes: RouteRecordRaw[] = [
     meta: { requiresAuth: true, title: 'Monitoring Operasional' },
   },
   {
+    path: '/Akuntansi/Jurnal-Transaksi',
+    name: 'akuntansi-jurnal-transaksi',
+    component: JurnalTransaksi,
+    meta: { requiresAuth: true, title: 'Jurnal Transaksi' },
+  },
+  {
+    path: '/Akuntansi/Laporan-Keuangan',
+    name: 'akuntansi-laporan-keuangan',
+    component: LaporanKeuangan,
+    meta: { requiresAuth: true, title: 'Laporan Keuangan' },
+  },
+  {
     path: '/Mitra/Data-Mitra',
     name: 'mitra-data-mitra',
     component: DataMitra,
@@ -348,9 +450,15 @@ router.beforeEach(async (to, from, next) => {
   if (auth.token && !userSession.user) {
     try {
       await auth.getProfile()
-    } catch {
-      auth.logout()
-      return next('/auth/login')
+  	} catch (err: any) {
+  	  const status = err?.response?.status
+  	  // Kalau benar‑benar 401 (token invalid/expired), baru paksa logout
+  	  if (status === 401) {
+  	    await auth.logout()
+  	    return next('/auth/login')
+  	  }
+  	  // Selain itu (timeout, 5xx, dsb) jangan paksa logout supaya tidak sering diminta login
+  	  console.error('Gagal load profile user, lanjut tanpa forced logout:', err)
     }
   }
 

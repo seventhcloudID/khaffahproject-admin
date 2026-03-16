@@ -27,6 +27,15 @@ const ProductHeadline = ({ paketUmrahId = "1" }: ProductHeadlineProps) => {
   const productSlug = getSlug();
   const bintangCount = Math.min(5, Math.max(0, parseInt(product?.bintang ?? "0", 10)));
   const jumlahPax = product?.jumlah_pax ?? 0;
+  const hargaAsliTermurah =
+    typeof product?.harga_asli_termurah === "number"
+      ? product.harga_asli_termurah
+      : undefined;
+  const persenPotonganMitra =
+    typeof product?.persen_potongan_mitra === "number"
+      ? product.persen_potongan_mitra
+      : 0;
+  const punyaDiskonMitra = !!hargaAsliTermurah && persenPotonganMitra > 0;
 
   return (
     <Screen className="px-4 md:px-0">
@@ -58,24 +67,58 @@ const ProductHeadline = ({ paketUmrahId = "1" }: ProductHeadlineProps) => {
         {/* <hr /> */}
         <div className="flex gap-2 flex-col-reverse md:flex-col lg:flex-col xl:flex-row ">
           <div className="py-2 flex md:flex-col items-center md:items-end gap-4 md:gap-0">
-            <p className="text-xs text-end text-khaffah-neutral-dark">
-              Mulai Dari (per orang)
-            </p>
-            <p className="text-16 md:text-20 lg:text-24 text-khaffah-secondary font-bold flex gap-1">
-              {formatRupiah(product?.harga_termurah ?? 0)}
-            </p>
+            {punyaDiskonMitra ? (
+              <div className="flex flex-col items-end gap-1">
+                <p className="text-xs text-khaffah-neutral-dark">
+                  Mulai Dari (per orang)
+                </p>
+                <div className="flex flex-col items-end gap-0.5">
+                  <p className="text-xs text-gray-400 line-through">
+                    {formatRupiah(hargaAsliTermurah)}
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <p className="text-16 md:text-20 lg:text-24 text-khaffah-secondary font-bold">
+                      {formatRupiah(product?.harga_termurah ?? 0)}
+                    </p>
+                    <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] md:text-xs font-semibold bg-amber-100 text-amber-800">
+                      Diskon {persenPotonganMitra}%
+                    </span>
+                  </div>
+                  <p className="text-[10px] md:text-xs text-gray-400">
+                    Harga khusus mitra Anda
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <>
+                <p className="text-xs text-end text-khaffah-neutral-dark">
+                  Mulai Dari (per orang)
+                </p>
+                <p className="text-16 md:text-20 lg:text-24 text-khaffah-secondary font-bold flex gap-1">
+                  {formatRupiah(product?.harga_termurah ?? 0)}
+                </p>
+              </>
+            )}
           </div>
           <div className="flex flex-row-reverse justify-between md:justify-end md:flex-col lg:flex-row-reverse gap-2">
-            {/* Ubah link menjadi /mitra/slug/paket */}
-            <Link href={`/mitra/buat-pesanan/${productSlug}/checkout`} prefetch>
-              <div className="bg-khaffah-primary flex items-center justify-center gap-2 w-full lg:w-44 px-10 py-3 rounded-lg lg:rounded-xl">
+            {/* Link checkout hanya aktif ketika slug sudah tersedia (hindari href="/.../undefined/checkout") */}
+            {productSlug ? (
+              <Link href={`/mitra/buat-pesanan/${productSlug}/checkout`} prefetch>
+                <div className="bg-khaffah-primary flex items-center justify-center gap-2 w-full lg:w-44 px-10 py-3 rounded-lg lg:rounded-xl">
+                  <p className="text-white text-center text-12 md:text-14 lg:text-16 font-bold whitespace-nowrap">
+                    Beli Paket
+                  </p>
+                </div>
+              </Link>
+            ) : (
+              <div className="bg-khaffah-primary/70 flex items-center justify-center gap-2 w-full lg:w-44 px-10 py-3 rounded-lg lg:rounded-xl cursor-not-allowed">
                 <p className="text-white text-center text-12 md:text-14 lg:text-16 font-bold whitespace-nowrap">
-                  Beli Paket
+                  Memuat...
                 </p>
               </div>
-            </Link>
-            <div className="bg-white flex items-center justify-center gap-2 w-full lg:w-44 px-6 py-3 rounded-lg lg:rounded-xl border">
-              <p className="text-black text-center text-xs md:text-sm lg:text-16 whitespace-nowrap">
+            )}
+            <div className="bg-white flex items-center justify-center gap-2 w-full lg:w-44 px-10 py-3 rounded-lg lg:rounded-xl border min-h-[3rem]">
+              <p className="text-black text-center text-12 md:text-14 lg:text-16 whitespace-nowrap">
                 Sisa Paket <span className="font-bold">{jumlahPax} Pax</span>
               </p>
             </div>

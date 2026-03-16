@@ -17,8 +17,8 @@ import type { Departure } from "@/typing/departure";
 const Departure = () => {
   const form = useFormContext();
   const produkId = useWatch({ control: form.control, name: "produk_id", defaultValue: form.getValues("produk_id") });
-  // Paket ID dari form (diset ContextForm dari URL query atau slug), hindari hardcode
-  const paketUmrahId = (produkId && Number(produkId) > 0) ? String(produkId) : "1";
+  // Paket ID dari form (diset ContextForm dari URL query atau slug). Jangan fallback ke "1" agar tidak fetch paket salah.
+  const paketUmrahId = (produkId && Number(produkId) > 0) ? String(produkId) : "";
 
   const { data } = useUmrahById(paketUmrahId);
   // Filter only active departures (backend bisa kirim is_active sebagai boolean atau 0/1)
@@ -35,7 +35,7 @@ const Departure = () => {
           <FormControl>
             <RadioGroup
               onValueChange={(value) => field.onChange(Number(value))}
-              defaultValue={field.value}
+              value={field.value ? String(field.value) : undefined}
               className="flex flex-wrap items-center justify-around gap-4"
             >
               {umrahDataKeberangkatan.map((item: Departure) => {

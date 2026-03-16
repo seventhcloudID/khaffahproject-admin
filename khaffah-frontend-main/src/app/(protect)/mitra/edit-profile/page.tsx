@@ -2,8 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ChevronRight, Upload, Calendar, ChevronDown } from "lucide-react";
-import { LevelProgress } from "@/components/pages/mitra/dashboard/LevelProgress";
+import { ChevronRight, Upload, Calendar, ChevronDown, User, Lock } from "lucide-react";
 import { SuccessModal } from "@/components/pages/mitra/ui/SuccessModal";
 
 import type { MitraProfile, Gender } from "@/types/mitra";
@@ -191,44 +190,68 @@ export default function EditProfilePage() {
 
   if (loading) {
     return (
-      <div className="space-y-4">
-        <h1 className="text-xl font-semibold">Profile Kamu</h1>
-        <p className="text-sm text-foreground/60 -mt-1">
-          Memuat profil…
-        </p>
+      <div className="space-y-6">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-khaffah-primary/10">
+            <User className="h-5 w-5 text-khaffah-primary" />
+          </div>
+          <div>
+            <h1 className="text-xl font-semibold text-foreground">Profile Kamu</h1>
+            <p className="text-sm text-muted-foreground">Memuat profil…</p>
+          </div>
+        </div>
+        <div className="h-48 animate-pulse rounded-2xl border border-border bg-card/50" />
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="space-y-4">
-        <h1 className="text-xl font-semibold">Profile Kamu</h1>
-        <p className="text-sm text-destructive">{error}</p>
-        <button
-          type="button"
-          onClick={() => fetchProfile()}
-          className="rounded-lg border border-border px-3 py-1.5 text-sm hover:bg-foreground/5"
-        >
-          Coba lagi
-        </button>
+      <div className="space-y-6">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-khaffah-primary/10">
+            <User className="h-5 w-5 text-khaffah-primary" />
+          </div>
+          <div>
+            <h1 className="text-xl font-semibold text-foreground">Profile Kamu</h1>
+            <p className="text-sm text-muted-foreground">Terjadi kesalahan</p>
+          </div>
+        </div>
+        <div className="rounded-2xl border border-destructive/30 bg-destructive/5 p-6">
+          <p className="text-sm text-destructive">{error}</p>
+          <button
+            type="button"
+            onClick={() => fetchProfile()}
+            className="mt-4 rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium hover:bg-foreground/5"
+          >
+            Coba lagi
+          </button>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-4">
-      <h1 className="text-xl font-semibold">Profile Kamu</h1>
-      <p className="text-sm text-foreground/60 -mt-1">
-        Informasi profil Anda tercatat di sini. Perbarui kapan pun diperlukan.
-      </p>
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center gap-3">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-khaffah-primary/10">
+          <User className="h-5 w-5 text-khaffah-primary" />
+        </div>
+        <div>
+          <h1 className="text-xl font-semibold text-foreground">Profile Kamu</h1>
+          <p className="text-sm text-muted-foreground">
+            Kelola informasi pribadi dan keamanan akun Anda.
+          </p>
+        </div>
+      </div>
 
-      <div className="grid grid-cols-12 gap-6">
-        <aside className="col-span-12 md:col-span-3">
-          <div className="rounded-2xl border border-border bg-card p-4">
-            <div className="flex flex-col items-center">
-              <AvatarCircle name={form.fullName} src={avatar} size={96} />
-
+      <div className="grid grid-cols-12 gap-6 lg:gap-8">
+        {/* Sidebar: Foto profil */}
+        <aside className="col-span-12 lg:col-span-4">
+          <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+            <div className="flex flex-col items-center text-center">
+              <AvatarCircle name={form.fullName} src={avatar} size={112} />
               <input
                 ref={avatarRef}
                 type="file"
@@ -236,16 +259,19 @@ export default function EditProfilePage() {
                 className="hidden"
                 onChange={onAvatar}
               />
-
-              <div className="mt-3 flex gap-2">
+              <p className="mt-3 text-sm font-medium text-foreground">
+                {form.fullName || "Nama belum diisi"}
+              </p>
+              <p className="text-xs text-muted-foreground">{form.email || "—"}</p>
+              <div className="mt-4 flex flex-wrap justify-center gap-2">
                 <button
                   onClick={pickAvatar}
-                  className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-1.5 text-sm hover:bg-foreground/5"
+                  type="button"
+                  className="inline-flex items-center gap-2 rounded-lg bg-khaffah-primary/10 px-4 py-2 text-sm font-medium text-khaffah-primary hover:bg-khaffah-primary/20"
                 >
                   <Upload className="h-4 w-4" />
-                  Pilih Foto
+                  Ganti Foto
                 </button>
-                {/* Kembalikan ke foto yang tersimpan */}
                 {(avatar || avatarFile) && (
                   <button
                     type="button"
@@ -253,62 +279,59 @@ export default function EditProfilePage() {
                       setAvatar(baseline.avatarUrl ?? null);
                       setAvatarFile(null);
                     }}
-                    className="rounded-lg border border-border px-3 py-1.5 text-sm hover:bg-foreground/5"
+                    className="rounded-lg border border-border px-4 py-2 text-sm hover:bg-foreground/5"
                   >
-                    Batalkan Foto
+                    Batalkan
                   </button>
                 )}
               </div>
-
-              <p className="mt-2 text-center text-[11px] text-foreground/55">
-                Ukuran gambar maks. 1 MB
-                <br />
-                Format: .JPEG, .PNG
+              <p className="mt-4 text-[11px] text-muted-foreground">
+                Maks. 1 MB · JPEG atau PNG
               </p>
             </div>
           </div>
         </aside>
 
-        {/* Kanan: Konten */}
-        <section className="col-span-12 md:col-span-9 space-y-4">
-          <LevelProgress />
-
-          {/* Form */}
-          <div className="space-y-3">
-            <Row label="Nama Lengkap">
-              <InputPill
-                value={form.fullName}
-                onChange={(v) => setField("fullName", v)}
-              />
-            </Row>
-
-            <Row label="Jenis Kelamin">
-              <div className="flex items-center gap-6 rounded-full border border-transparent bg-khaffah-neutral-light px-4 py-2">
-                <label className="inline-flex items-center gap-2 text-sm">
-                  <input
-                    type="radio"
-                    name="gender"
-                    className="h-4 w-4 accent-khaffah-primary"
-                    checked={form.gender === "L"}
-                    onChange={() => setField("gender", "L" as Gender)}
-                  />
-                  Laki-Laki
-                </label>
-                <label className="inline-flex items-center gap-2 text-sm">
-                  <input
-                    type="radio"
-                    name="gender"
-                    className="h-4 w-4 accent-khaffah-primary"
-                    checked={form.gender === "P"}
-                    onChange={() => setField("gender", "P" as Gender)}
-                  />
-                  Perempuan
-                </label>
-              </div>
-            </Row>
-
-            <Row label="Tanggal Lahir">
-              <div className="grid w-full gap-2">
+        {/* Konten utama: Form & tautan */}
+        <section className="col-span-12 lg:col-span-8 space-y-6">
+          {/* Informasi pribadi */}
+          <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+            <h2 className="mb-4 text-base font-semibold text-foreground">
+              Informasi Pribadi
+            </h2>
+            <div className="space-y-4">
+              <Row label="Nama Lengkap">
+                <InputPill
+                  value={form.fullName}
+                  onChange={(v) => setField("fullName", v)}
+                  placeholder="Masukkan nama lengkap"
+                />
+              </Row>
+              <Row label="Jenis Kelamin">
+                <div className="flex items-center gap-6 rounded-full border border-transparent bg-muted/50 px-4 py-2.5">
+                  <label className="inline-flex cursor-pointer items-center gap-2 text-sm">
+                    <input
+                      type="radio"
+                      name="gender"
+                      className="h-4 w-4 accent-khaffah-primary"
+                      checked={form.gender === "L"}
+                      onChange={() => setField("gender", "L" as Gender)}
+                    />
+                    Laki-Laki
+                  </label>
+                  <label className="inline-flex cursor-pointer items-center gap-2 text-sm">
+                    <input
+                      type="radio"
+                      name="gender"
+                      className="h-4 w-4 accent-khaffah-primary"
+                      checked={form.gender === "P"}
+                      onChange={() => setField("gender", "P" as Gender)}
+                    />
+                    Perempuan
+                  </label>
+                </div>
+              </Row>
+              <Row label="Tanggal Lahir">
                 <DatePicker
                   value={form.birthDate}
                   onChange={(iso) => setField("birthDate", iso)}
@@ -319,75 +342,80 @@ export default function EditProfilePage() {
                 >
                   <button
                     type="button"
-                    className="relative flex w-full items-center justify-between rounded-full border border-transparent bg-khaffah-neutral-light px-4 py-2 text-sm"
+                    className="relative flex w-full items-center justify-between rounded-full border border-transparent bg-muted/50 px-4 py-2.5 text-sm"
                   >
-                    <span className="absolute left-3">
-                      <Calendar className="h-4 w-4 text-foreground/40" />
+                    <Calendar className="absolute left-3 h-4 w-4 text-muted-foreground" />
+                    <span className="font-medium">
+                      {form.birthDate ? prettyBirth : "Pilih tanggal lahir"}
                     </span>
-                    <span className="mx-auto font-medium">
-                      {form.birthDate ? prettyBirth : "Tentukan Tanggal"}
-                    </span>
-                    <span className="absolute right-3">
-                      <ChevronDown className="h-4 w-4 text-foreground/40" />
-                    </span>
+                    <ChevronDown className="h-4 w-4 text-muted-foreground" />
                   </button>
                 </DatePicker>
-              </div>
-            </Row>
-
-            <Row label="Email">
-              <InputPill
-                type="email"
-                value={form.email}
-                onChange={(v) => setField("email", v)}
-              />
-            </Row>
-
-            <Row label="No Handphone">
-              <InputPill
-                type="tel"
-                value={form.phone}
-                onChange={(v) => setField("phone", v)}
-              />
-            </Row>
+              </Row>
+              <Row label="Email">
+                <InputPill
+                  type="email"
+                  value={form.email}
+                  onChange={(v) => setField("email", v)}
+                  placeholder="email@contoh.com"
+                />
+              </Row>
+              <Row label="No. Handphone">
+                <InputPill
+                  type="tel"
+                  value={form.phone}
+                  onChange={(v) => setField("phone", v)}
+                  placeholder="08xxxxxxxxxx"
+                />
+              </Row>
+            </div>
+            <div className="mt-6 flex flex-wrap items-center gap-3 border-t border-border pt-6">
+              {saveError && (
+                <p className="w-full text-sm text-destructive">{saveError}</p>
+              )}
+              <button
+                onClick={handleSave}
+                disabled={!dirty || saving}
+                className={[
+                  "rounded-lg px-5 py-2.5 text-sm font-medium text-white transition",
+                  dirty && !saving
+                    ? "bg-khaffah-primary hover:brightness-95"
+                    : "bg-khaffah-primary/40 cursor-not-allowed",
+                ].join(" ")}
+              >
+                {saving ? "Menyimpan…" : "Simpan Perubahan"}
+              </button>
+              {dirty && !saving && (
+                <span className="text-xs text-muted-foreground">
+                  Ada perubahan yang belum disimpan
+                </span>
+              )}
+            </div>
           </div>
 
-          {/* Link baris */}
-          <LinkRow
-            href="/mitra/edit-profile/dokumen"
-            icon={<Upload className="h-4 w-4 text-foreground/60" />}
-          >
-            Edit Dokumen Kemitraan
-          </LinkRow>
-          <LinkRow href="/mitra/edit-profile/password">Ganti Password</LinkRow>
-
-          {/* CTA Simpan */}
-          <div className="pt-2">
-            {saveError && (
-              <p className="mb-2 text-sm text-destructive">{saveError}</p>
-            )}
-            <button
-              onClick={handleSave}
-              disabled={!dirty || saving}
-              className={[
-                "w-full md:w-auto rounded-lg px-4 py-2 text-sm font-medium text-white",
-                dirty && !saving
-                  ? "bg-khaffah-primary hover:brightness-95"
-                  : "bg-khaffah-primary/40 cursor-not-allowed",
-              ].join(" ")}
-            >
-              {saving ? "Menyimpan…" : "Simpan Perubahan"}
-            </button>
-            {dirty && !saving && (
-              <p className="mt-2 text-xs text-khaffah-secondary">
-                Ada perubahan yang belum disimpan.
-              </p>
-            )}
+          {/* Tautan berguna */}
+          <div className="space-y-3">
+            <h2 className="text-base font-semibold text-foreground">
+              Keamanan & Dokumen
+            </h2>
+            <div className="flex flex-col gap-2">
+              <LinkRow
+                href="/mitra/edit-profile/dokumen"
+                icon={<Upload className="h-4 w-4 text-muted-foreground" />}
+              >
+                Edit Dokumen Kemitraan
+              </LinkRow>
+              <LinkRow
+                href="/mitra/edit-profile/password"
+                icon={<Lock className="h-4 w-4 text-muted-foreground" />}
+              >
+                Ganti Password
+              </LinkRow>
+            </div>
           </div>
         </section>
       </div>
 
-      {/* Modal sukses */}
       <SuccessModal
         open={successOpen}
         onClose={() => setSuccessOpen(false)}
@@ -408,13 +436,11 @@ function Row({
   children: React.ReactNode;
 }) {
   return (
-    <div className="rounded-xl border border-border bg-card p-3">
-      <div className="grid grid-cols-12 items-center gap-3">
-        <div className="col-span-12 md:col-span-2">
-          <div className="text-[12px] text-foreground/55">{label}</div>
-        </div>
-        <div className="col-span-12 md:col-span-10">{children}</div>
+    <div className="grid grid-cols-12 items-center gap-3">
+      <div className="col-span-12 md:col-span-3">
+        <label className="text-sm font-medium text-foreground">{label}</label>
       </div>
+      <div className="col-span-12 md:col-span-9">{children}</div>
     </div>
   );
 }
@@ -436,7 +462,7 @@ function InputPill({
       value={value}
       placeholder={placeholder}
       onChange={(e) => onChange(e.target.value)}
-      className="w-full rounded-full border border-transparent bg-khaffah-neutral-light px-4 py-2 text-sm text-foreground outline-none focus:border-khaffah-primary focus:ring-2 focus:ring-khaffah-primary/30"
+      className="w-full rounded-lg border border-border bg-muted/50 px-4 py-2.5 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:border-khaffah-primary focus:ring-2 focus:ring-khaffah-primary/20"
     />
   );
 }
@@ -453,13 +479,13 @@ function LinkRow({
   return (
     <Link
       href={href}
-      className="group flex items-center justify-between rounded-xl border border-border bg-card px-4 py-3"
+      className="group flex items-center justify-between rounded-xl border border-border bg-card px-4 py-3 transition-colors hover:bg-muted/30"
     >
-      <div className="flex items-center gap-2 text-sm font-medium">
-        {icon}
+      <div className="flex items-center gap-3 text-sm font-medium">
+        {icon ?? null}
         <span>{children}</span>
       </div>
-      <ChevronRight className="h-4 w-4 text-foreground/40 transition-transform group-hover:translate-x-0.5" />
+      <ChevronRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
     </Link>
   );
 }

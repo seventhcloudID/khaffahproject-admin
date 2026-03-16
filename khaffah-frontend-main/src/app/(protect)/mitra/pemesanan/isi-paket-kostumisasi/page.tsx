@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { format } from "date-fns";
 import Image from "next/image";
 import {
@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { Input } from "@/components/ui/input";
-import { Hotel, hotelData } from "./data/hotelData";
+import { Hotel, hotelData as hotelDataFallback } from "./data/hotelData";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { airlinesData, flightSchedules, FlightSchedule } from "./data/airlineData";
 import {
@@ -42,6 +42,7 @@ import RincianPaketStep3 from "./section/RincianPaketStep3";
 import { toast } from "sonner";
 import BuktiTransferInput from "./components/BuktiTransferInput";
 import PaymentReviewModal from "./components/PaymentReviewModal";
+import { apiInstance } from "@/lib/axios";
 
 interface Passenger {
   id: string;
@@ -77,57 +78,14 @@ interface FormData {
   bank?: string;
 }
 
-// Data jemaah tersimpan (dummy data)
-const savedPassengers: Passenger[] = [
-  {
-    id: "1",
-    name: "Fandi Ahmad",
-    idNumber: "3201234567890001",
-    gender: "male",
-    phoneNumber: "081234567890",
-    address: "Jl. Merdeka No. 123",
-    city: "Jakarta",
-  },
-  {
-    id: "2",
-    name: "Reza Pratama",
-    idNumber: "3201234567890002",
-    gender: "male",
-    phoneNumber: "081234567891",
-    address: "Jl. Sudirman No. 456",
-    city: "Bandung",
-  },
-  {
-    id: "3",
-    name: "Fauzi Ramadhan",
-    idNumber: "3201234567890003",
-    gender: "male",
-    phoneNumber: "081234567892",
-    address: "Jl. Thamrin No. 789",
-    city: "Surabaya",
-  },
-  {
-    id: "4",
-    name: "Syahrul Hidayat",
-    idNumber: "3201234567890004",
-    gender: "male",
-    phoneNumber: "081234567893",
-    address: "Jl. Gatot Subroto No. 101",
-    city: "Medan",
-  },
-  {
-    id: "5",
-    name: "Siti Aminah",
-    idNumber: "3201234567890005",
-    gender: "female",
-    phoneNumber: "081234567894",
-    address: "Jl. Diponegoro No. 202",
-    city: "Yogyakarta",
-  },
-];
+// Data jemaah tersimpan: di-load dari API /api/jamaah (tanpa dummy)
+const savedPassengers: Passenger[] = [];
 
 export type StepType = 1 | 2 | 3 | 4;
 
+/** Minimal jumlah jemaah untuk paket kostumisasi (mitra).
+ *  Sementara dinonaktifkan (0) agar mudah testing. */
+const MIN_PAX_PAKET_KOSTUMISASI = 0;
 
 export default function PemesananPaketPage() {
   const [step, setStep] = useState<StepType>(1);
@@ -140,6 +98,10 @@ export default function PemesananPaketPage() {
   const [buktiTransferFile, setBuktiTransferFile] = useState<File | null>(null);
   const [showErrors, setShowErrors] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
+  const [hotels, setHotels] = useState<Hotel[]>([]);
+  const [loadingHotels, setLoadingHotels] = useState(false);
+  const [masterPassengers, setMasterPassengers] = useState<Passenger[]>([]);
+  const [loadingPassengers, setLoadingPassengers] = useState(false);
 
   // State untuk modal
   const [airlineModalOpen, setAirlineModalOpen] = useState<{
@@ -184,6 +146,102 @@ export default function PemesananPaketPage() {
 
   const currency = (n: number) =>
     `Rp ${Number(n || 0).toLocaleString("id-ID")}`;
+
+  const hotelsList = useMemo(() => {
+    return hotels.length > 0 ? hotels : hotelDataFallback;
+  }, [hotels]);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function loadHotels() {
+      setLoadingHotels(true);
+      try {
+        const base = (process.env.NEXT_PUBLIC_API ?? "http://127.0.0.1:8000").replace(
+          /\/+$/,
+          ""
+        );
+        const res = await fetch(`${base}/api/la-umrah/hotels`, {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+          cache: "no-store",
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const json = (await res.json()) as {
+          status?: boolean;
+          data?: Array<{
+            id: string;
+            name: string;
+            city?: string;
+            stars?: number;
+            price?: number;
+            distance?: string;
+            images?: string[];
+            description?: string;
+          }>;
+        };
+        const list = Array.isArray(json?.data) ? json.data : [];
+        const mapped: Hotel[] = list.map((h) => ({
+          id: String(h.id),
+          name: h.name ?? "-",
+          city: h.city ?? "",
+          stars: Number(h.stars ?? 0),
+          price: Number(h.price ?? 0),
+          distance: h.distance ?? "",
+          images: Array.isArray(h.images) ? h.images : [],
+          description: h.description ?? "",
+          // field yang dipakai modal detail dummy: isi default agar tidak crash
+          mapUrl: "",
+          locationBreadcrumb: "",
+          facilities: [],
+          nearby: [],
+          policies: { checkin: "-", checkout: "-", others: [] },
+        }));
+        if (!cancelled) setHotels(mapped);
+      } catch (e) {
+        // fallback ke hardcode jika API belum siap / jaringan bermasalah
+        if (!cancelled) setHotels([]);
+      } finally {
+        if (!cancelled) setLoadingHotels(false);
+      }
+    }
+    loadHotels();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // Load daftar jamaah dari API (akun saat ini)
+  useEffect(() => {
+    let cancelled = false;
+    async function loadPassengers() {
+      setLoadingPassengers(true);
+      try {
+        const res = await apiInstance.get<{
+          data?: Array<{
+            id: number | string;
+            nama_lengkap?: string;
+            nomor_identitas?: string;
+          }>;
+        }>("/api/jamaah");
+        const list = Array.isArray(res.data?.data) ? res.data?.data : [];
+        const mapped: Passenger[] = list.map((j) => ({
+          id: String(j.id),
+          name: j.nama_lengkap ?? "-",
+          idNumber: j.nomor_identitas ?? "",
+          gender: "male",
+        }));
+        if (!cancelled) setMasterPassengers(mapped);
+      } catch {
+        if (!cancelled) setMasterPassengers([]);
+      } finally {
+        if (!cancelled) setLoadingPassengers(false);
+      }
+    }
+    void loadPassengers();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   // Helper function untuk update form data dengan type yang tepat
   const updateFormData = <K extends keyof FormData>(field: K, value: FormData[K]) => {
@@ -283,6 +341,7 @@ export default function PemesananPaketPage() {
   }
 
   function submitStep1() {
+    // Validasi minimal pax sementara dimatikan untuk keperluan testing.
     setStep(2);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
@@ -447,6 +506,7 @@ export default function PemesananPaketPage() {
                           </DialogTrigger>
                           <HotelSelectionDialog
                             hotelTarget={formData.hotelTarget}
+                            hotels={hotelsList}
                             onSelectHotel={(hotel) => {
                               updateFormData("hotelId", hotel.id);
                               setSelectedHotelDetail(hotel);
@@ -482,6 +542,7 @@ export default function PemesananPaketPage() {
                           </DialogTrigger>
                           <HotelSelectionDialog
                             hotelTarget={formData.hotelTarget}
+                            hotels={hotelsList}
                             onSelectHotel={(hotel) => {
                               updateFormData("hotelId", hotel.id);
                               setSelectedHotelDetail(hotel);
@@ -502,11 +563,12 @@ export default function PemesananPaketPage() {
                     <div className="flex items-start gap-4">
                       <Image
                         src={
-                          hotelData.find((h) => h.id === formData.hotelId)
+                          hotelsList.find((h) => h.id === formData.hotelId)
                             ?.images[0] || ""
                         }
                         alt={
-                          hotelData.find((h) => h.id === formData.hotelId)?.name || "Hotel Image"
+                          hotelsList.find((h) => h.id === formData.hotelId)?.name ||
+                          "Hotel Image"
                         }
                         width={100}
                         height={100}
@@ -517,19 +579,19 @@ export default function PemesananPaketPage() {
                           <div>
                             <h4 className="font-bold">
                               {
-                                hotelData.find((h) => h.id === formData.hotelId)
+                                hotelsList.find((h) => h.id === formData.hotelId)
                                   ?.name
                               }
                             </h4>
                             <div className="text-yellow-500 text-sm mt-1">
                               {"★".repeat(
-                                hotelData.find((h) => h.id === formData.hotelId)
+                                hotelsList.find((h) => h.id === formData.hotelId)
                                   ?.stars || 0
                               )}
                             </div>
                             <p className="text-sm text-gray-600 mt-1">
                               {
-                                hotelData.find((h) => h.id === formData.hotelId)
+                                hotelsList.find((h) => h.id === formData.hotelId)
                                   ?.description
                               }
                             </p>
@@ -537,7 +599,7 @@ export default function PemesananPaketPage() {
                           <div className="text-right">
                             <div className="text-khaffah-primary font-bold">
                               Rp{" "}
-                              {hotelData
+                              {hotelsList
                                 .find((h) => h.id === formData.hotelId)
                                 ?.price.toLocaleString()}
                             </div>
@@ -552,7 +614,7 @@ export default function PemesananPaketPage() {
                     <div className="mt-3 flex justify-between items-center">
                       <div className="text-xs text-muted-foreground">
                         {
-                          hotelData.find((h) => h.id === formData.hotelId)
+                          hotelsList.find((h) => h.id === formData.hotelId)
                             ?.distance
                         }
                       </div>
@@ -575,6 +637,11 @@ export default function PemesananPaketPage() {
               {formData.hotelId && (
                 <div className="mt-6 p-4 border rounded-lg bg-gray-50">
                   <h4 className="font-medium mb-4">Pilih Tipe Kamar</h4>
+                  {loadingHotels && (
+                    <p className="text-sm text-muted-foreground mb-3">
+                      Memuat data hotel...
+                    </p>
+                  )}
                   <div className="space-y-4">
                     <div className="flex items-center justify-between p-3 border rounded-lg bg-white">
                       <div className="flex items-center gap-3">
@@ -846,21 +913,36 @@ export default function PemesananPaketPage() {
                 {formData.departAirlineId && (
                   <div className="border rounded-lg p-4 bg-white">
                     <div className="flex items-start gap-4">
-                      <Image
-                        src={
-                          airlinesData.find(
-                            (a) => a.id === formData.departAirlineId
-                          )?.logo || ""
+                      {(() => {
+                        const a = airlinesData.find(
+                          (x) => x.id === formData.departAirlineId
+                        );
+                        const initials = (a?.name || "?")
+                          .split(" ")
+                          .map((n) => n[0])
+                          .join("")
+                          .slice(0, 2)
+                          .toUpperCase();
+                        if (a?.logo) {
+                          return (
+                            <Image
+                              src={a.logo}
+                              alt={a.name}
+                              width={64}
+                              height={64}
+                              className="w-16 h-16 object-cover rounded-lg"
+                            />
+                          );
                         }
-                        alt={
-                          airlinesData.find(
-                            (a) => a.id === formData.departAirlineId
-                          )?.name || "Airline Logo"
-                        }
-                        width={64}
-                        height={64}
-                        className="w-16 h-16 object-cover rounded-lg"
-                      />
+                        return (
+                          <div className="w-16 h-16 rounded-full bg-gray-100 border border-gray-300 flex flex-col items-center justify-center text-[10px] text-gray-600">
+                            <span className="text-xs font-semibold text-gray-800">
+                              {initials}
+                            </span>
+                            <span className="mt-0.5">Tanpa logo</span>
+                          </div>
+                        );
+                      })()}
                       <div className="flex-1">
                         <div className="flex items-start justify-between">
                           <div>
@@ -1001,21 +1083,36 @@ export default function PemesananPaketPage() {
                 {formData.returnAirlineId && (
                   <div className="border rounded-lg p-4 bg-white">
                     <div className="flex items-start gap-4">
-                      <Image
-                        src={
-                          airlinesData.find(
-                            (a) => a.id === formData.returnAirlineId
-                          )?.logo || ""
+                      {(() => {
+                        const a = airlinesData.find(
+                          (x) => x.id === formData.returnAirlineId
+                        );
+                        const initials = (a?.name || "?")
+                          .split(" ")
+                          .map((n) => n[0])
+                          .join("")
+                          .slice(0, 2)
+                          .toUpperCase();
+                        if (a?.logo) {
+                          return (
+                            <Image
+                              src={a.logo}
+                              alt={a.name}
+                              width={64}
+                              height={64}
+                              className="w-16 h-16 object-cover rounded-lg"
+                            />
+                          );
                         }
-                        alt={
-                          airlinesData.find(
-                            (a) => a.id === formData.returnAirlineId
-                          )?.name || "Airline Logo"
-                        }
-                        width={64}
-                        height={64}
-                        className="w-16 h-16 object-cover rounded-lg"
-                      />
+                        return (
+                          <div className="w-16 h-16 rounded-full bg-gray-100 border border-gray-300 flex flex-col items-center justify-center text-[10px] text-gray-600">
+                            <span className="text-xs font-semibold text-gray-800">
+                              {initials}
+                            </span>
+                            <span className="mt-0.5">Tanpa logo</span>
+                          </div>
+                        );
+                      })()}
                       <div className="flex-1">
                         <div className="flex items-start justify-between">
                           <div>
@@ -1141,7 +1238,7 @@ export default function PemesananPaketPage() {
                     </Button>
                   </DialogTrigger>
                   <PassengerManagementDialog
-                    savedPassengers={savedPassengers}
+                    savedPassengers={masterPassengers}
                     passengers={formData.passengers}
                     onAddPassenger={addPassenger}
                     onRemovePassenger={removePassenger}
@@ -1154,6 +1251,7 @@ export default function PemesananPaketPage() {
 
           <div className="mt-6">
             <button
+              type="button"
               onClick={submitStep1}
               className="w-full rounded-full bg-khaffah-primary text-white py-3 text-center"
             >
@@ -1273,7 +1371,7 @@ export default function PemesananPaketPage() {
               formData={formData}
               setFormData={setFormData}
               airlinesData={airlinesData}
-              hotelData={hotelData}
+              hotelData={hotelsList}
               calculateTotal={calculateTotal}
               setStep={setStep}
               submitStep3={() => setStep(4)}
@@ -1447,12 +1545,14 @@ export default function PemesananPaketPage() {
                 </div>
 
                 <div className="space-y-3">
-                  <iframe
-                    src={selectedHotelDetail.mapUrl}
-                    className="w-full h-52 rounded-xl border"
-                    loading="lazy"
-                    title="Hotel location map"
-                  ></iframe>
+                  {selectedHotelDetail.mapUrl ? (
+                    <iframe
+                      src={selectedHotelDetail.mapUrl}
+                      className="w-full h-52 rounded-xl border"
+                      loading="lazy"
+                      title="Hotel location map"
+                    ></iframe>
+                  ) : null}
                   <div className="text-sm space-y-2">
                     {selectedHotelDetail.nearby.map((place, index) => (
                       <div
@@ -1556,6 +1656,12 @@ export default function PemesananPaketPage() {
                   const selectedAirline = airlinesData.find(
                     (a) => a.id === flightModalOpen.airlineId
                   );
+                  const initials = (selectedAirline?.name || "?")
+                    .split(" ")
+                    .map((n) => n[0])
+                    .join("")
+                    .slice(0, 2)
+                    .toUpperCase();
 
                   return (
                     <div
@@ -1563,13 +1669,22 @@ export default function PemesananPaketPage() {
                       className="border border-gray-200 rounded-2xl p-4 flex items-center justify-between shadow-sm hover:shadow-md transition"
                     >
                       <div className="flex items-center gap-4">
-                        <Image
-                          src={selectedAirline?.logo || ""}
-                          alt={selectedAirline?.name || "Airline"}
-                          width={40}
-                          height={40}
-                          className="w-10 h-10 object-contain"
-                        />
+                        {selectedAirline?.logo ? (
+                          <Image
+                            src={selectedAirline.logo}
+                            alt={selectedAirline.name || "Airline"}
+                            width={40}
+                            height={40}
+                            className="w-10 h-10 object-contain"
+                          />
+                        ) : (
+                          <div className="w-10 h-10 rounded-full bg-gray-100 border border-gray-300 flex flex-col items-center justify-center text-[9px] text-gray-600">
+                            <span className="text-[10px] font-semibold text-gray-800">
+                              {initials}
+                            </span>
+                            <span>Tanpa logo</span>
+                          </div>
+                        )}
                         <div>
                           <div className="font-semibold">
                             {selectedAirline?.name}
@@ -1640,17 +1755,36 @@ export default function PemesananPaketPage() {
           {ticketDetailModalOpen.schedule && (
             <div className="space-y-6">
               <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
-                <Image
-                  src={
-                    airlinesData.find(
-                      (a) => a.id === ticketDetailModalOpen.airlineId
-                    )?.logo || ""
+                {(() => {
+                  const a = airlinesData.find(
+                    (x) => x.id === ticketDetailModalOpen.airlineId
+                  );
+                  const initials = (a?.name || "?")
+                    .split(" ")
+                    .map((n) => n[0])
+                    .join("")
+                    .slice(0, 2)
+                    .toUpperCase();
+                  if (a?.logo) {
+                    return (
+                      <Image
+                        src={a.logo}
+                        alt={a.name}
+                        width={64}
+                        height={64}
+                        className="w-16 h-16 object-contain"
+                      />
+                    );
                   }
-                  alt="Airline Logo"
-                  width={64}
-                  height={64}
-                  className="w-16 h-16 object-contain"
-                />
+                  return (
+                    <div className="w-16 h-16 rounded-full bg-gray-100 border border-gray-300 flex flex-col items-center justify-center text-[10px] text-gray-600">
+                      <span className="text-xs font-semibold text-gray-800">
+                        {initials}
+                      </span>
+                      <span className="mt-0.5">Tanpa logo</span>
+                    </div>
+                  );
+                })()}
                 <div>
                   <h3 className="font-bold text-lg">
                     {
@@ -1758,11 +1892,13 @@ export default function PemesananPaketPage() {
 
 interface HotelSelectionDialogProps {
   hotelTarget: "makkah" | "madinah" | null;
+  hotels: Hotel[];
   onSelectHotel: (hotel: Hotel) => void;
 }
 
 function HotelSelectionDialog({
   hotelTarget,
+  hotels,
   onSelectHotel,
 }: HotelSelectionDialogProps) {
   return (
@@ -1771,7 +1907,7 @@ function HotelSelectionDialog({
         <DialogTitle>Pilih Hotel</DialogTitle>
       </DialogHeader>
       <div className="space-y-3">
-        {hotelData
+        {hotels
           .filter((h) =>
             h.city.toLowerCase().includes((hotelTarget || "").toLowerCase())
           )
@@ -1849,53 +1985,76 @@ function AirlineSelectionDialog({
         </DialogTitle>
       </DialogHeader>
       <div className="space-y-4">
-        {airlinesData.map((airline) => (
-          <div key={airline.id} className="border rounded-lg p-4">
-            <div className="flex items-start gap-4">
-              <Image
-                src={airline.logo}
-                alt={airline.name}
-                width={64}
-                height={64}
-                className="w-16 h-16 object-cover rounded-lg"
-              />
-              <div className="flex-1">
-                <h4 className="font-bold">{airline.name}</h4>
-                <p className="text-sm text-gray-600 mt-1">
-                  {airline.description}
-                </p>
-                <div className="mt-3 space-y-2">
-                  {airline.routes.map((route) => (
-                    <div
-                      key={route.id}
-                      className="flex items-center justify-between p-3 border rounded"
-                    >
-                      <div>
-                        <div className="font-medium">{route.description}</div>
-                        <div className="text-sm text-muted-foreground">
-                          {route.duration}
+        {airlinesData.map((airline) => {
+          const initials = (airline.name || "?")
+            .split(" ")
+            .map((n) => n[0])
+            .join("")
+            .slice(0, 2)
+            .toUpperCase();
+          return (
+            <div key={airline.id} className="border rounded-lg p-4">
+              <div className="flex items-start gap-4">
+                {airline.logo ? (
+                  <Image
+                    src={airline.logo}
+                    alt={airline.name}
+                    width={64}
+                    height={64}
+                    className="w-16 h-16 object-cover rounded-lg"
+                  />
+                ) : (
+                  <div className="w-16 h-16 rounded-full bg-gray-100 border border-gray-300 flex flex-col items-center justify-center text-[10px] text-gray-600">
+                    <span className="text-xs font-semibold text-gray-800">
+                      {initials}
+                    </span>
+                    <span className="mt-0.5">Tanpa logo</span>
+                  </div>
+                )}
+                <div className="flex-1">
+                  <h4 className="font-bold">{airline.name}</h4>
+                  <p className="text-sm text-gray-600 mt-1">
+                    {airline.description}
+                  </p>
+                  <div className="mt-3 space-y-2">
+                    {airline.routes.map((route) => (
+                      <div
+                        key={route.id}
+                        className="flex items-center justify-between p-3 border rounded"
+                      >
+                        <div>
+                          <div className="font-medium">
+                            {route.description}
+                          </div>
+                          <div className="text-sm text-muted-foreground">
+                            {route.duration}
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-khaffah-primary font-bold">
+                            Rp {route.price.toLocaleString()}
+                          </div>
+                          <button
+                            onClick={() =>
+                              onSelectAirlineAndRoute(
+                                airline.id,
+                                route.id,
+                                side
+                              )
+                            }
+                            className="mt-2 px-4 py-2 bg-khaffah-primary text-white rounded-lg text-sm"
+                          >
+                            Pilih & Lihat Jadwal
+                          </button>
                         </div>
                       </div>
-                      <div className="text-right">
-                        <div className="text-khaffah-primary font-bold">
-                          Rp {route.price.toLocaleString()}
-                        </div>
-                        <button
-                          onClick={() =>
-                            onSelectAirlineAndRoute(airline.id, route.id, side)
-                          }
-                          className="mt-2 px-4 py-2 bg-khaffah-primary text-white rounded-lg text-sm"
-                        >
-                          Pilih & Lihat Jadwal
-                        </button>
-                      </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </DialogContent>
   );

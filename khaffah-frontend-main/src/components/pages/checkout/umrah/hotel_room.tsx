@@ -25,13 +25,13 @@ export default function HotelRoomForm() {
   const { data: umrahData } = useUmrah();
   const form = useFormContext<UmrahProduct>();
   
-  // Find product ID by matching slug to product name
+  // Find product ID by matching slug to product name. Jangan fallback ke 1 agar tidak fetch paket salah.
   const paketUmrahId = useMemo(() => {
     const packages = umrahData?.data?.data || [];
     const matchedPackage = packages.find(
       (pkg) => productNameToSlug(pkg.nama_paket) === slug
     );
-    return matchedPackage?.id || 1; // Default to 1 if not found
+    return matchedPackage?.id ?? "";
   }, [slug, umrahData]);
   
   const { data } = useUmrahRoomType(paketUmrahId);

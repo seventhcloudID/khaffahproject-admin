@@ -297,45 +297,30 @@ const fetchData = async () => {
     const edutripList = getListFromResponse(edutripRes)
     const customList = getListFromResponse(customRes)
 
-    const toAmount = (t: any): number => {
-      // Utamakan nominal yang sudah diverifikasi admin jika tersedia
-      if (t.total_pembayaran_verified != null) {
-        const verified = Number(t.total_pembayaran_verified) || 0
-        if (verified > 0) return verified
-      }
-
-      let biaya = Number(t.total_biaya) || 0
-      if (biaya === 0 && t.snapshot_produk) {
-        try {
-          const snapshot =
-            typeof t.snapshot_produk === 'string' ? JSON.parse(t.snapshot_produk) : t.snapshot_produk
-          const jamaahCount = Array.isArray(t.jamaah_data) ? t.jamaah_data.length : 1
-          biaya = Number(snapshot?.harga_per_pax || 0) * jamaahCount
-        } catch {
-          // ignore
-        }
-      }
-      return biaya
-    }
+    // Jurnal hanya mencatat pendapatan dari pembayaran yang sudah dikonfirmasi (verified).
+    // Sesuai aturan: lunas = sisa tagihan 0; pendapatan diakui sebesar yang sudah diterima.
+    const getTotalVerified = (t: any): number => Number(t.total_pembayaran_verified) || 0
 
     const mapToJurnal = (
       list: any[],
       jenis: string
     ): JurnalEntry[] =>
-      list.map((t: any) => {
-        const amount = toAmount(t)
-        const tanggal = t.tanggal_transaksi || t.created_at || t.tgl_pemesanan || ''
-        const referensi = t.kode_transaksi || t.nomor_pembayaran || '-'
-        const nama = t.nama_lengkap || t.nama || '-'
-        return {
-          tanggal,
-          referensi,
-          keterangan: `Pendapatan ${jenis} - ${nama}`,
-          jenis,
-          debit: 0,
-          kredit: amount,
-        }
-      })
+      list
+        .filter((t: any) => getTotalVerified(t) > 0)
+        .map((t: any) => {
+          const amount = getTotalVerified(t)
+          const tanggal = t.tanggal_transaksi || t.created_at || t.tgl_pemesanan || ''
+          const referensi = t.kode_transaksi || t.nomor_pembayaran || '-'
+          const nama = t.nama_lengkap || t.nama || '-'
+          return {
+            tanggal,
+            referensi,
+            keterangan: `Pendapatan ${jenis} - ${nama}`,
+            jenis,
+            debit: 0,
+            kredit: amount,
+          }
+        })
 
     let all: JurnalEntry[] = [
       ...mapToJurnal(umrahList, 'Umrah'),

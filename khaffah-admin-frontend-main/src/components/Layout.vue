@@ -385,9 +385,32 @@ const extraSistemAdminMenus = [
   { sub_modul_id: 'setting-faq', nama_sub_modul: 'Setting FAQ', url: '/sistem-admin/Setting-FAQ', icon_class: 'fa-solid fa-question-circle' },
   { sub_modul_id: 'setting-pengaturan-aplikasi', nama_sub_modul: 'Pengaturan Aplikasi', url: '/sistem-admin/Setting-Pengaturan-Aplikasi', icon_class: 'fab fa-whatsapp' },
 ]
+const extraDataMasterMenus = [
+  { sub_modul_id: 'master-rekening', nama_sub_modul: 'Master Rekening', url: '/Paket/Master-Rekening', icon_class: 'fa-solid fa-university' },
+  { sub_modul_id: 'master-visa', nama_sub_modul: 'Master Visa', url: '/Paket/Master-Visa', icon_class: 'fa-solid fa-passport' },
+  { sub_modul_id: 'master-badal-umrah', nama_sub_modul: 'Master Badal Umrah', url: '/Paket/Master-Badal-Umrah', icon_class: 'fa-solid fa-hand-holding-heart' },
+  { sub_modul_id: 'master-badal-haji', nama_sub_modul: 'Master Badal Haji', url: '/Paket/Master-Badal-Haji', icon_class: 'fa-solid fa-mosque' },
+  { sub_modul_id: 'master-la-umrah', nama_sub_modul: 'Master LA Umrah', url: '/Paket/Master-LA-Umrah', icon_class: 'fa-solid fa-list-check' },
+]
+// Modul Komponen (standalone, tidak digabung dengan Daftar Transaksi) + submenu
+const KOMPONEN_MODUL_ID = 9000
+const komponenModule = {
+  modul_id: KOMPONEN_MODUL_ID,
+  nama_modul: 'Komponen',
+  icon_class: 'fa-solid fa-puzzle-piece',
+  child: [
+    { sub_modul_id: 'komponen-semua', nama_sub_modul: 'Semua Komponen', url: '/Daftar-Transaksi/Transaksi-Komponen' },
+    { sub_modul_id: 'komponen-hotel', nama_sub_modul: 'Pemesanan Hotel', url: '/Daftar-Transaksi/Transaksi-Komponen?filter=Komponen Hotel' },
+    { sub_modul_id: 'komponen-visa', nama_sub_modul: 'Visa', url: '/Daftar-Transaksi/Transaksi-Komponen?filter=Komponen Visa' },
+    { sub_modul_id: 'komponen-badal-umrah', nama_sub_modul: 'Badal Umrah', url: '/Daftar-Transaksi/Transaksi-Komponen?filter=Komponen Badal Umrah' },
+    { sub_modul_id: 'komponen-tiket', nama_sub_modul: 'Tiket Pesawat', url: '/Daftar-Transaksi/Transaksi-Komponen?filter=Komponen Tiket Pesawat' },
+    { sub_modul_id: 'komponen-badal', nama_sub_modul: 'Badal Haji', url: '/Daftar-Transaksi/Transaksi-Komponen?filter=Komponen Badal Haji' },
+  ],
+}
 // Urutan modul sidebar agar rapi dan berkelompok
 const SIDEBAR_MODUL_ORDER = [
   'Daftar Transaksi',
+  'Komponen',
   'Paket',
   'Pendaftaran',
   'Mitra',
@@ -403,6 +426,15 @@ const menus = computed(() => {
     const childFiltered = (m.child || []).filter(
       (c: any) => c.nama_sub_modul !== 'Modul Aplikasi' && c.url !== '/Sistem-Admin/Modul-Aplikasi'
     )
+    if (m.nama_modul === 'Data Master') {
+      const children = [...childFiltered]
+      extraDataMasterMenus.forEach((extra: any) => {
+        if (!children.some((c: any) => c.url === extra.url)) {
+          children.push(extra)
+        }
+      })
+      return { ...m, child: children }
+    }
     if (m.nama_modul !== 'Sistem Admin') return { ...m, child: childFiltered }
     const children = [...childFiltered]
     extraSistemAdminMenus.forEach((extra: any) => {
@@ -412,8 +444,11 @@ const menus = computed(() => {
     })
     return { ...m, child: children }
   })
+  // Sertakan modul Komponen (standalone)
+  const withoutKomponen = mapped.filter((m: any) => m.modul_id !== KOMPONEN_MODUL_ID)
+  const withKomponen = [...withoutKomponen, komponenModule]
   // Sort sesuai urutan yang ditentukan
-  return [...mapped].sort((a: any, b: any) => {
+  return [...withKomponen].sort((a: any, b: any) => {
     const ia = SIDEBAR_MODUL_ORDER.indexOf(a.nama_modul)
     const ib = SIDEBAR_MODUL_ORDER.indexOf(b.nama_modul)
     const ai = ia === -1 ? 999 : ia
@@ -422,10 +457,10 @@ const menus = computed(() => {
   })
 })
 
-/** Tampilkan divider sebelum Data Master dan sebelum Sistem Admin */
+/** Tampilkan divider sebelum Komponen, Data Master, dan Sistem Admin */
 function showDividerBefore(m: any, index: number) {
   if (index === 0) return false
-  return m.nama_modul === 'Data Master' || m.nama_modul === 'Sistem Admin'
+  return m.nama_modul === 'Komponen' || m.nama_modul === 'Data Master' || m.nama_modul === 'Sistem Admin'
 }
 const open = ref<{ [k: number]: boolean }>({})
 const isLoading = computed(() => modulesStore.isLoading)
@@ -474,8 +509,12 @@ onMounted(async () => {
 
     // mark opened module if current route matches
     menus.value.forEach((m: any) => {
-      if (m.child?.some((ch: any) => ch.url === route.path)) {
+      if (m.child?.some((ch: any) => ch.url === route.path || (typeof ch.url === 'string' && ch.url.startsWith(route.path) && route.path !== '/'))) {
         open.value[m.modul_id] = true
+      }
+      // Komponen: buka saat di halaman Transaksi-Komponen (path sama dengan atau tanpa query)
+      if (m.modul_id === KOMPONEN_MODUL_ID && route.path === '/Daftar-Transaksi/Transaksi-Komponen') {
+        open.value[KOMPONEN_MODUL_ID] = true
       }
     })
 

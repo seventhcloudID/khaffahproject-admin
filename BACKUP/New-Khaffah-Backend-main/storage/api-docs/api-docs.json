@@ -1,0 +1,3678 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Kaffah API",
+        "description": "Dokumentasi API Kaffah (frontend & admin)",
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "http://127.0.0.1:8000",
+            "description": "Local development"
+        }
+    ],
+    "paths": {
+        "/api/register": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Register user baru",
+                "operationId": "ca7c0cb6772de9bffbb8c896980cebc8",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "nama_lengkap",
+                                    "jenis_kelamin",
+                                    "tgl_lahir",
+                                    "email",
+                                    "no_handphone",
+                                    "password",
+                                    "role"
+                                ],
+                                "properties": {
+                                    "nama_lengkap": {
+                                        "type": "string",
+                                        "example": "John Doe"
+                                    },
+                                    "jenis_kelamin": {
+                                        "type": "string",
+                                        "enum": [
+                                            "laki-laki",
+                                            "perempuan"
+                                        ],
+                                        "example": "laki-laki"
+                                    },
+                                    "tgl_lahir": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2000-01-01"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "john@example.com"
+                                    },
+                                    "no_handphone": {
+                                        "type": "string",
+                                        "example": "08123456789"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "password123"
+                                    },
+                                    "role": {
+                                        "type": "string",
+                                        "enum": [
+                                            "user",
+                                            "mitra",
+                                            "superadmin"
+                                        ],
+                                        "example": "user"
+                                    },
+                                    "foto_profile": {
+                                        "description": "Profile picture (jpg, jpeg, png)",
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "User registered successfully"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                }
+            }
+        },
+        "/api/login": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Login pengguna",
+                "operationId": "c373bc4cffa4a56fc64e3979b8ee7b96",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "example": "john@example.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "example": "password123"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Login success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Login success"
+                                        },
+                                        "user": {
+                                            "type": "object"
+                                        },
+                                        "role": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            }
+                                        },
+                                        "token": {
+                                            "type": "string",
+                                            "example": "Bearer <token>"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            }
+        },
+        "/api/me": {
+            "get": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Ambil data user yang sedang login (profile)",
+                "operationId": "57d51f3fa328d534a6ee8562484d0687",
+                "responses": {
+                    "200": {
+                        "description": "User profile",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "id": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "nama_lengkap": {
+                                            "type": "string",
+                                            "example": "John Doe"
+                                        },
+                                        "jenis_kelamin": {
+                                            "type": "string",
+                                            "example": "laki-laki"
+                                        },
+                                        "tgl_lahir": {
+                                            "type": "string",
+                                            "format": "date",
+                                            "example": "2000-01-01"
+                                        },
+                                        "email": {
+                                            "type": "string",
+                                            "example": "john@example.com"
+                                        },
+                                        "no_handphone": {
+                                            "type": "string",
+                                            "example": "08123456789"
+                                        },
+                                        "foto_profile": {
+                                            "description": "<img src='http://localhost:8000/storage/profile/foo.jpg' width='120' />",
+                                            "type": "string",
+                                            "format": "uri",
+                                            "example": "http://localhost:8000/storage/profile/foo.jpg",
+                                            "nullable": true
+                                        },
+                                        "roles": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/logout": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Logout user (hapus token saat ini)",
+                "operationId": "5ff2dc8b48bff52908d3821a0ecc9b3e",
+                "responses": {
+                    "200": {
+                        "description": "Logged out successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Logged out successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/auth/google": {
+            "get": {
+                "tags": [
+                    "Auth Google"
+                ],
+                "summary": "Redirect ke Google OAuth",
+                "description": "Mengarahkan user ke halaman login Google untuk autentikasi",
+                "operationId": "e299709dd3227a1a35cee7cf5f4eb21b",
+                "responses": {
+                    "302": {
+                        "description": "Redirect ke halaman login Google"
+                    },
+                    "400": {
+                        "description": "Error saat redirect"
+                    }
+                }
+            }
+        },
+        "/api/auth/google/callback": {
+            "get": {
+                "tags": [
+                    "Auth Google"
+                ],
+                "summary": "Handle callback dari Google OAuth",
+                "description": "Memproses callback dari Google setelah user login, membuat atau memperbarui user, dan mengembalikan token authentication",
+                "operationId": "cfd1704a13d84d045c2b5a6dc0cad092",
+                "parameters": [
+                    {
+                        "name": "code",
+                        "in": "query",
+                        "description": "Authorization code dari Google",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "state",
+                        "in": "query",
+                        "description": "State parameter untuk keamanan CSRF",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "302": {
+                        "description": "Redirect ke frontend dengan token dan data user",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "token": {
+                                            "type": "string",
+                                            "example": "Bearer abc123..."
+                                        },
+                                        "nama": {
+                                            "type": "string",
+                                            "example": "John Doe"
+                                        },
+                                        "email": {
+                                            "type": "string",
+                                            "example": "john@example.com"
+                                        },
+                                        "foto": {
+                                            "type": "string",
+                                            "format": "uri",
+                                            "example": "https://lh3.googleusercontent.com/..."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Token Google tidak valid",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Token Google tidak valid"
+                                        },
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Invalid authorization code"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/mitra/land-arrangement/grup": {
+            "post": {
+                "tags": [
+                    "LandArrangement"
+                ],
+                "summary": "Request Land Arrangement untuk grup",
+                "operationId": "6eace94bd482803f9f5b714a64982d0a",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "nama_lengkap",
+                                    "no_whatsapp",
+                                    "alamat_lengkap",
+                                    "jumlah_pax",
+                                    "tanggal_keberangkatan",
+                                    "tanggal_kepulangan"
+                                ],
+                                "properties": {
+                                    "gelar_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "nama_lengkap": {
+                                        "type": "string",
+                                        "example": "Ahmad Santoso"
+                                    },
+                                    "no_whatsapp": {
+                                        "type": "string",
+                                        "example": "08123456789"
+                                    },
+                                    "alamat_lengkap": {
+                                        "type": "string",
+                                        "example": "Jl. Merdeka No. 123"
+                                    },
+                                    "provinsi_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "kota_id": {
+                                        "type": "integer",
+                                        "example": 10
+                                    },
+                                    "kecamatan_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "deskripsi": {
+                                        "type": "string",
+                                        "example": "Request paket untuk grup sekolah"
+                                    },
+                                    "jumlah_pax": {
+                                        "type": "integer",
+                                        "example": 50
+                                    },
+                                    "tanggal_keberangkatan": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2025-10-15"
+                                    },
+                                    "tanggal_kepulangan": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2025-10-25"
+                                    },
+                                    "kebutuhan_khusus": {
+                                        "type": "string",
+                                        "example": "Butuh guide bahasa Indonesia"
+                                    },
+                                    "jamaah_data": {
+                                        "type": "array",
+                                        "items": {
+                                            "properties": {
+                                                "nama": {
+                                                    "type": "string"
+                                                },
+                                                "nik": {
+                                                    "type": "string"
+                                                },
+                                                "no_paspor": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Request Land Arrangement grup berhasil dibuat",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/mitra/land-arrangement/private": {
+            "post": {
+                "tags": [
+                    "LandArrangement"
+                ],
+                "summary": "Request Land Arrangement untuk private",
+                "operationId": "a051c5635cfe65eebd5ba41a7a5eecc3",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "nama_lengkap",
+                                    "no_whatsapp",
+                                    "alamat_lengkap",
+                                    "jumlah_pax",
+                                    "tanggal_keberangkatan",
+                                    "tanggal_kepulangan"
+                                ],
+                                "properties": {
+                                    "gelar_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "nama_lengkap": {
+                                        "type": "string",
+                                        "example": "Ahmad Santoso"
+                                    },
+                                    "no_whatsapp": {
+                                        "type": "string",
+                                        "example": "08123456789"
+                                    },
+                                    "alamat_lengkap": {
+                                        "type": "string",
+                                        "example": "Jl. Merdeka No. 123"
+                                    },
+                                    "provinsi_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "kota_id": {
+                                        "type": "integer",
+                                        "example": 10
+                                    },
+                                    "kecamatan_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "deskripsi": {
+                                        "type": "string",
+                                        "example": "Request paket private"
+                                    },
+                                    "jumlah_pax": {
+                                        "type": "integer",
+                                        "example": 2
+                                    },
+                                    "tanggal_keberangkatan": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2025-10-15"
+                                    },
+                                    "tanggal_kepulangan": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2025-10-25"
+                                    },
+                                    "kebutuhan_khusus": {
+                                        "type": "string",
+                                        "example": "Butuh hotel bintang 5"
+                                    },
+                                    "jamaah_data": {
+                                        "type": "array",
+                                        "items": {
+                                            "properties": {
+                                                "nama": {
+                                                    "type": "string"
+                                                },
+                                                "nik": {
+                                                    "type": "string"
+                                                },
+                                                "no_paspor": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Request Land Arrangement private berhasil dibuat",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/mitra/land-arrangement/pemesanan-reguler": {
+            "post": {
+                "tags": [
+                    "LandArrangement"
+                ],
+                "summary": "Pemesanan Paket Land Arrangement Reguler",
+                "operationId": "db1a609860ade701c359586ac476d3f3",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "nama_lengkap",
+                                    "no_whatsapp",
+                                    "alamat_lengkap",
+                                    "paket_la_id",
+                                    "jumlah_pax",
+                                    "tanggal_keberangkatan"
+                                ],
+                                "properties": {
+                                    "gelar_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "nama_lengkap": {
+                                        "type": "string",
+                                        "example": "Ahmad Santoso"
+                                    },
+                                    "no_whatsapp": {
+                                        "type": "string",
+                                        "example": "08123456789"
+                                    },
+                                    "alamat_lengkap": {
+                                        "type": "string",
+                                        "example": "Jl. Merdeka No. 123"
+                                    },
+                                    "provinsi_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "kota_id": {
+                                        "type": "integer",
+                                        "example": 10
+                                    },
+                                    "kecamatan_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "deskripsi": {
+                                        "type": "string",
+                                        "example": "Pemesanan paket LA reguler"
+                                    },
+                                    "paket_la_id": {
+                                        "description": "ID paket Land Arrangement dari admin",
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "jumlah_pax": {
+                                        "type": "integer",
+                                        "example": 10
+                                    },
+                                    "tanggal_keberangkatan": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2025-10-15"
+                                    },
+                                    "jamaah_data": {
+                                        "type": "array",
+                                        "items": {
+                                            "properties": {
+                                                "nama": {
+                                                    "type": "string"
+                                                },
+                                                "nik": {
+                                                    "type": "string"
+                                                },
+                                                "no_paspor": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Pemesanan paket LA reguler berhasil dibuat",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/mitra/daftar-mitra": {
+            "post": {
+                "tags": [
+                    "Mitra"
+                ],
+                "summary": "Pendaftaran mitra baru",
+                "operationId": "b8f60763a0b5c58be7491c337f6b867c",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "nama_lengkap",
+                                    "jenis_kelamin",
+                                    "tgl_lahir",
+                                    "email",
+                                    "no_handphone",
+                                    "password",
+                                    "nik",
+                                    "provinsi_id",
+                                    "kota_id",
+                                    "kecamatan_id",
+                                    "alamat_lengkap",
+                                    "foto_ktp"
+                                ],
+                                "properties": {
+                                    "nama_lengkap": {
+                                        "type": "string",
+                                        "maxLength": 255,
+                                        "example": "Ahmad Maulana"
+                                    },
+                                    "jenis_kelamin": {
+                                        "type": "string",
+                                        "enum": [
+                                            "laki-laki",
+                                            "perempuan"
+                                        ],
+                                        "example": "laki-laki"
+                                    },
+                                    "tgl_lahir": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "1990-05-15"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "ahmad.mitra@example.com"
+                                    },
+                                    "no_handphone": {
+                                        "type": "string",
+                                        "example": "081234567890"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "minLength": 6,
+                                        "example": "password123"
+                                    },
+                                    "nik": {
+                                        "type": "string",
+                                        "maxLength": 50,
+                                        "example": "3201234567890001"
+                                    },
+                                    "provinsi_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "kota_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "kecamatan_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "alamat_lengkap": {
+                                        "type": "string",
+                                        "example": "Jl. Merdeka No. 123, RT 01/RW 05"
+                                    },
+                                    "nomor_ijin_usaha": {
+                                        "type": "string",
+                                        "maxLength": 100,
+                                        "example": "SIUP/123/2024"
+                                    },
+                                    "masa_berlaku_ijin_usaha": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2025-12-31"
+                                    },
+                                    "foto_ktp": {
+                                        "description": "File KTP (jpg, jpeg, png, pdf, max 5MB)",
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "dokumen_ppiu": {
+                                        "description": "Dokumen PPIU (pdf, max 5MB)",
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "dokumen_pihk": {
+                                        "description": "Dokumen PIHK (pdf, max 5MB)",
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Pendaftaran mitra berhasil",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Pendaftaran mitra berhasil, menunggu verifikasi"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validasi gagal",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The email has already been taken."
+                                        },
+                                        "errors": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Gagal daftar mitra",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Gagal daftar mitra"
+                                        },
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Error message details"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/edutrip/transaksi": {
+            "get": {
+                "tags": [
+                    "PaketEdutrip"
+                ],
+                "summary": "Daftar transaksi program edutrip (khusus superadmin)",
+                "operationId": "53f7315a5fe13782063bddf98d7a1b0f",
+                "responses": {
+                    "200": {
+                        "description": "Daftar transaksi program edutrip",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {}
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/edutrip/paket": {
+            "get": {
+                "tags": [
+                    "PaketEdutrip"
+                ],
+                "summary": "Daftar paket edutrip aktif",
+                "operationId": "e39c797d5d2cb5f538d774cf1fccf294",
+                "responses": {
+                    "200": {
+                        "description": "Daftar paket edutrip berhasil diambil",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {}
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Terjadi kesalahan"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/edutrip/pesan": {
+            "post": {
+                "tags": [
+                    "PaketEdutrip"
+                ],
+                "summary": "Pesan paket edutrip (Non Payment)",
+                "operationId": "2ecf15a9ca2f1a716f8ead50f567714d",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "nama_lengkap",
+                                    "no_whatsapp",
+                                    "produk_id",
+                                    "tanggal_kunjungan",
+                                    "jam_kunjungan"
+                                ],
+                                "properties": {
+                                    "gelar_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "nama_lengkap": {
+                                        "type": "string",
+                                        "example": "Ahmad Santoso"
+                                    },
+                                    "no_whatsapp": {
+                                        "type": "string",
+                                        "example": "08123456789"
+                                    },
+                                    "deskripsi": {
+                                        "type": "string",
+                                        "example": "Rombongan sekolah 50 orang"
+                                    },
+                                    "produk_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "tanggal_kunjungan": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2025-10-15"
+                                    },
+                                    "jam_kunjungan": {
+                                        "type": "string",
+                                        "example": "09:00"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Pesanan berhasil dibuat",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Pemesanan paket edutrip berhasil dibuat"
+                                        },
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/sistem-admin/paket-edutrip/create-paket-edutrip": {
+            "post": {
+                "tags": [
+                    "PaketEdutrip"
+                ],
+                "summary": "Buat paket edutrip baru",
+                "operationId": "ad782da122608b65212fb479fed739ee",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "nama_paket",
+                                    "jumlah_hari",
+                                    "deskripsi"
+                                ],
+                                "properties": {
+                                    "nama_paket": {
+                                        "type": "string",
+                                        "example": "test paket"
+                                    },
+                                    "jumlah_hari": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "deskripsi": {
+                                        "type": "string",
+                                        "example": "test"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Paket edutrip berhasil dibuat",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/sistem-admin/paket-edutrip/update-paket-edutrip/{id}": {
+            "put": {
+                "tags": [
+                    "PaketEdutrip"
+                ],
+                "summary": "Update paket edutrip",
+                "operationId": "5293a232b87b687c9ac66d6fd5a5f5d5",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID paket edutrip",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "nama_paket",
+                                    "jumlah_hari",
+                                    "deskripsi"
+                                ],
+                                "properties": {
+                                    "nama_paket": {
+                                        "type": "string",
+                                        "example": "test paket"
+                                    },
+                                    "jumlah_hari": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "deskripsi": {
+                                        "type": "string",
+                                        "example": "test"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Paket edutrip berhasil diupdate",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Paket edutrip tidak ditemukan"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/sistem-admin/paket-edutrip/delete-paket-edutrip/{id}": {
+            "delete": {
+                "tags": [
+                    "PaketEdutrip"
+                ],
+                "summary": "Hapus paket edutrip",
+                "operationId": "ad9a13bf90fba6a56a8226ed3ac2f316",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID paket edutrip",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Paket edutrip berhasil dihapus",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Paket edutrip tidak ditemukan"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/edutrip/submission": {
+            "get": {
+                "tags": [
+                    "PaketEdutrip"
+                ],
+                "summary": "Daftar submission edutrip milik user/mitra yang login",
+                "operationId": "a8ff0bc2f0252aee0bfada7c5e0ad10a",
+                "parameters": [
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "description": "Filter status: belum, diproses, selesai, batal",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "tglAwal",
+                        "in": "query",
+                        "description": "Tanggal awal filter (format: YYYY-MM-DD)",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "tglAkhir",
+                        "in": "query",
+                        "description": "Tanggal akhir filter (format: YYYY-MM-DD)",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Daftar submission edutrip berhasil diambil",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {}
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/edutrip/submission/{id}": {
+            "get": {
+                "tags": [
+                    "PaketEdutrip"
+                ],
+                "summary": "Detail submission edutrip berdasarkan ID",
+                "operationId": "9c1f32331a3c579603af83ac398ddcc5",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID submission edutrip",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detail submission edutrip berhasil diambil",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Submission edutrip tidak ditemukan"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/edutrip/submission/{id}/update-status": {
+            "put": {
+                "tags": [
+                    "PaketEdutrip"
+                ],
+                "summary": "Update status submission edutrip",
+                "operationId": "e72274298ea6d33d43dea065668dea0d",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID submission edutrip",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "status_id"
+                                ],
+                                "properties": {
+                                    "status_id": {
+                                        "description": "ID status transaksi",
+                                        "type": "integer",
+                                        "example": 1
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Status submission edutrip berhasil diupdate",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Submission edutrip tidak ditemukan"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/haji/transaksi": {
+            "get": {
+                "tags": [
+                    "PaketHaji"
+                ],
+                "summary": "Daftar transaksi program haji (khusus superadmin)",
+                "operationId": "a37a9dfd9786ac3a1a52670fa105474e",
+                "responses": {
+                    "200": {
+                        "description": "Daftar transaksi program haji",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {}
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/haji/paket": {
+            "get": {
+                "tags": [
+                    "PaketHaji"
+                ],
+                "summary": "Daftar paket haji aktif",
+                "operationId": "223f0d75f68a9ffb27432849293f437c",
+                "responses": {
+                    "200": {
+                        "description": "Daftar paket haji berhasil diambil",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {}
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Terjadi kesalahan"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/haji/pesan": {
+            "post": {
+                "tags": [
+                    "PaketHaji"
+                ],
+                "summary": "Pesan paket haji (Non Payment)",
+                "operationId": "5c2f4a498f46ec181943d1bbc250a68c",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "nama_lengkap",
+                                    "no_whatsapp",
+                                    "alamat_lengkap",
+                                    "produk_id"
+                                ],
+                                "properties": {
+                                    "gelar_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "nama_lengkap": {
+                                        "type": "string",
+                                        "example": "Ahmad Santoso"
+                                    },
+                                    "no_whatsapp": {
+                                        "type": "string",
+                                        "example": "08123456789"
+                                    },
+                                    "alamat_lengkap": {
+                                        "type": "string",
+                                        "example": "Jl. Merdeka No. 123"
+                                    },
+                                    "deskripsi": {
+                                        "type": "string",
+                                        "example": "Catatan tambahan"
+                                    },
+                                    "produk_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "provinsi_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "kota_id": {
+                                        "type": "integer",
+                                        "example": 10
+                                    },
+                                    "kecamatan_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "jamaah_data[0][nama]": {
+                                        "type": "string",
+                                        "example": "Ahmad"
+                                    },
+                                    "jamaah_data[0][nik]": {
+                                        "type": "string",
+                                        "example": "1234567890123456"
+                                    },
+                                    "jamaah_data[0][no_paspor]": {
+                                        "type": "string",
+                                        "example": "A1234567"
+                                    },
+                                    "jamaah_data[0][foto_ktp]": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "jamaah_data[0][foto_paspor]": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Pesanan berhasil dibuat",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Pemesanan paket haji berhasil dibuat"
+                                        },
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/haji/paket/store": {
+            "post": {
+                "tags": [
+                    "PaketHaji"
+                ],
+                "summary": "Simpan paket haji baru",
+                "operationId": "848115abf3a7ac4012143c4215599cf4",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "nama_paket",
+                                    "biaya_per_pax"
+                                ],
+                                "properties": {
+                                    "nama_paket": {
+                                        "type": "string",
+                                        "example": "Haji Plus"
+                                    },
+                                    "biaya_per_pax": {
+                                        "type": "number",
+                                        "format": "decimal",
+                                        "example": 111
+                                    },
+                                    "deskripsi_akomodasi": {
+                                        "type": "string",
+                                        "example": "Akomodasi bintang 5"
+                                    },
+                                    "akomodasi": {
+                                        "type": "array",
+                                        "items": {
+                                            "properties": {
+                                                "kota": {
+                                                    "type": "object"
+                                                },
+                                                "hotel": {
+                                                    "type": "object"
+                                                },
+                                                "rating_hotel": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "waktu_tunggu": {
+                                        "properties": {
+                                            "min": {
+                                                "type": "integer",
+                                                "example": 1
+                                            },
+                                            "max": {
+                                                "type": "integer",
+                                                "example": 2
+                                            },
+                                            "deskripsi": {
+                                                "type": "string",
+                                                "example": "Waktu tunggu 1-2 tahun"
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    "fasilitas_tambahan": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "deskripsi_fasilitas": {
+                                        "type": "string",
+                                        "example": "Fasilitas lengkap"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Paket haji berhasil dibuat",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Paket haji berhasil dibuat"
+                                        },
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validasi gagal"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/sistem-admin/paket-haji/update-paket-haji/{id}": {
+            "put": {
+                "tags": [
+                    "PaketHaji"
+                ],
+                "summary": "Update paket haji",
+                "operationId": "a31aaa48c20f47a91442bcc996ff1e93",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID paket haji",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "nama_paket",
+                                    "biaya_per_pax"
+                                ],
+                                "properties": {
+                                    "nama_paket": {
+                                        "type": "string",
+                                        "example": "Haji Plus"
+                                    },
+                                    "biaya_per_pax": {
+                                        "type": "number",
+                                        "format": "decimal",
+                                        "example": 111
+                                    },
+                                    "deskripsi_akomodasi": {
+                                        "type": "string",
+                                        "example": "Akomodasi bintang 5"
+                                    },
+                                    "akomodasi": {
+                                        "type": "array",
+                                        "items": {
+                                            "properties": {
+                                                "kota": {
+                                                    "type": "object"
+                                                },
+                                                "hotel": {
+                                                    "type": "object"
+                                                },
+                                                "rating_hotel": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "waktu_tunggu": {
+                                        "properties": {
+                                            "min": {
+                                                "type": "integer",
+                                                "example": 1
+                                            },
+                                            "max": {
+                                                "type": "integer",
+                                                "example": 2
+                                            },
+                                            "deskripsi": {
+                                                "type": "string",
+                                                "example": "Waktu tunggu 1-2 tahun"
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    "fasilitas_tambahan": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "deskripsi_fasilitas": {
+                                        "type": "string",
+                                        "example": "Fasilitas lengkap"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Paket haji berhasil diupdate",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Paket haji berhasil diupdate"
+                                        },
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Paket haji tidak ditemukan"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/sistem-admin/paket-haji/delete-paket-haji/{id}": {
+            "delete": {
+                "tags": [
+                    "PaketHaji"
+                ],
+                "summary": "Hapus paket haji",
+                "operationId": "f4a786a50a0ab7f1c6ec5c5c42ec0ef2",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID paket haji",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Paket haji berhasil dihapus",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Paket haji berhasil dihapus"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Paket haji tidak ditemukan"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/haji/submission": {
+            "get": {
+                "tags": [
+                    "PaketHaji"
+                ],
+                "summary": "Daftar submission haji milik user/mitra yang login",
+                "operationId": "866ae2bbbc8cbcaffd88b2b4840d232e",
+                "parameters": [
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "description": "Filter status: belum, diproses, selesai, batal",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "tglAwal",
+                        "in": "query",
+                        "description": "Tanggal awal filter (format: YYYY-MM-DD)",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "tglAkhir",
+                        "in": "query",
+                        "description": "Tanggal akhir filter (format: YYYY-MM-DD)",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Daftar submission haji berhasil diambil",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {}
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/haji/submission/{id}": {
+            "get": {
+                "tags": [
+                    "PaketHaji"
+                ],
+                "summary": "Detail submission haji berdasarkan ID",
+                "operationId": "92504f64deb1c397dbd421fb936b3e9a",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID submission haji",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detail submission haji berhasil diambil",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Submission haji tidak ditemukan"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/haji/submission/{id}/update-status": {
+            "put": {
+                "tags": [
+                    "PaketHaji"
+                ],
+                "summary": "Update status submission haji",
+                "operationId": "822eec9dff835fa58596b901499c7a5a",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID submission haji",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "status_id"
+                                ],
+                                "properties": {
+                                    "status_id": {
+                                        "description": "ID status transaksi",
+                                        "type": "integer",
+                                        "example": 1
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Status submission haji berhasil diupdate",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Submission haji tidak ditemukan"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/mitra/haji/submit-form": {
+            "post": {
+                "tags": [
+                    "PaketHaji"
+                ],
+                "summary": "Handle Submission Form Haji untuk Mitra",
+                "operationId": "5b45e3eb06ef3458fc129a142b5007b2",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "nama_lengkap",
+                                    "no_whatsapp",
+                                    "alamat_lengkap",
+                                    "produk_id"
+                                ],
+                                "properties": {
+                                    "gelar_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "nama_lengkap": {
+                                        "type": "string",
+                                        "example": "Ahmad Santoso"
+                                    },
+                                    "no_whatsapp": {
+                                        "type": "string",
+                                        "example": "08123456789"
+                                    },
+                                    "alamat_lengkap": {
+                                        "type": "string",
+                                        "example": "Jl. Merdeka No. 123"
+                                    },
+                                    "deskripsi": {
+                                        "type": "string",
+                                        "example": "Catatan tambahan"
+                                    },
+                                    "produk_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "provinsi_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "kota_id": {
+                                        "type": "integer",
+                                        "example": 10
+                                    },
+                                    "kecamatan_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "jamaah_data[0][nama]": {
+                                        "type": "string",
+                                        "example": "Ahmad"
+                                    },
+                                    "jamaah_data[0][nik]": {
+                                        "type": "string",
+                                        "example": "1234567890123456"
+                                    },
+                                    "jamaah_data[0][no_paspor]": {
+                                        "type": "string",
+                                        "example": "A1234567"
+                                    },
+                                    "jamaah_data[0][foto_ktp]": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "jamaah_data[0][foto_paspor]": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Submission form haji berhasil dibuat",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Submission form haji berhasil dibuat"
+                                        },
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/paket-umrah/list-paket": {
+            "get": {
+                "tags": [
+                    "PaketUmrah"
+                ],
+                "summary": "Ambil daftar paket umrah yang tersedia",
+                "operationId": "36022811dd57126ec34e5bcf492dcef1",
+                "responses": {
+                    "200": {
+                        "description": "Data list paket umrah berhasil diambil",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Terjadi kesalahan"
+                    }
+                }
+            }
+        },
+        "/api/paket-umrah/paket": {
+            "get": {
+                "tags": [
+                    "PaketUmrah"
+                ],
+                "summary": "Ambil data paket umrah (bisa semua atau satu berdasarkan ID)",
+                "operationId": "aa76b004ddc2b1d8a656ba3f7fd463b9",
+                "parameters": [
+                    {
+                        "name": "paket_umrah_id",
+                        "in": "query",
+                        "description": "ID paket umrah (opsional, jika diisi akan mengembalikan 1 paket saja)",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Data paket umrah berhasil diambil",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Paket umrah tidak ditemukan"
+                    },
+                    "500": {
+                        "description": "Terjadi kesalahan"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/paket-umrah/tipe": {
+            "get": {
+                "tags": [
+                    "PaketUmrah"
+                ],
+                "summary": "Daftar tipe paket umrah berdasarkan paket_umrah_id",
+                "operationId": "34843c616aa0b2a062a8a1e4d3eaa9da",
+                "parameters": [
+                    {
+                        "name": "paket_umrah_id",
+                        "in": "query",
+                        "description": "ID paket umrah",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Daftar tipe paket umrah berhasil diambil",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    },
+                    "500": {
+                        "description": "Server error"
+                    }
+                }
+            }
+        },
+        "/api/paket-umrah/preview": {
+            "get": {
+                "tags": [
+                    "PaketUmrah"
+                ],
+                "summary": "Preview tipe paket umrah sebelum pemesanan (keberangkatan pertama, maskapai, hotels, fasilitas, perlengkapan)",
+                "operationId": "ecc813f130af94ca9049eb4da75aeefa",
+                "parameters": [
+                    {
+                        "name": "paket_umrah_id",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "paket_umrah_tipe_id",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "tanggal_keberangkatan_id",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Preview tipe paket umrah",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/paket-umrah/pesan": {
+            "post": {
+                "tags": [
+                    "PaketUmrah"
+                ],
+                "summary": "Pesan paket umrah (dengan pembayaran/price-aware)",
+                "operationId": "e14b9658fb1148f5d8e132a2c88cd3af",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "nama_lengkap",
+                                    "no_whatsapp",
+                                    "produk_id",
+                                    "paket_umrah_tipe_id"
+                                ],
+                                "properties": {
+                                    "gelar_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "nama_lengkap": {
+                                        "type": "string",
+                                        "example": "Ahmad Santoso"
+                                    },
+                                    "no_whatsapp": {
+                                        "type": "string",
+                                        "example": "08123456789"
+                                    },
+                                    "provinsi_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "kota_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "kecamatan_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "alamat_lengkap": {
+                                        "type": "string",
+                                        "example": "Jl. Merdeka No. 1"
+                                    },
+                                    "deskripsi": {
+                                        "type": "string",
+                                        "example": "Catatan tambahan"
+                                    },
+                                    "produk_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "keberangkatan_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "paket_umrah_tipe_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "jumlah_bayar": {
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 33050000
+                                    },
+                                    "jamaah_data[0][id]": {
+                                        "type": "string",
+                                        "example": "1"
+                                    },
+                                    "jamaah_data[0][nama]": {
+                                        "type": "string",
+                                        "example": "Ahmad"
+                                    },
+                                    "jamaah_data[0][nik]": {
+                                        "type": "string",
+                                        "example": "1234567890123456"
+                                    },
+                                    "jamaah_data[0][no_paspor]": {
+                                        "type": "string",
+                                        "example": "A1234567"
+                                    },
+                                    "jamaah_data[0][foto_ktp]": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "jamaah_data[0][foto_paspor]": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Pesanan berhasil dibuat",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Pemesanan paket umrah berhasil dibuat"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "transaksi": {
+                                                    "type": "object"
+                                                },
+                                                "kode_transaksi": {
+                                                    "type": "string"
+                                                },
+                                                "total_biaya": {
+                                                    "type": "number",
+                                                    "format": "float"
+                                                },
+                                                "jumlah_jamaah": {
+                                                    "type": "integer"
+                                                },
+                                                "pembayaran": {
+                                                    "type": "object",
+                                                    "nullable": true
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/paket-umrah/upload-bukti": {
+            "post": {
+                "tags": [
+                    "PaketUmrah"
+                ],
+                "summary": "Upload bukti pembayaran untuk sebuah transaksi pembayaran",
+                "operationId": "783b5a91cb75552616216156c5c207d0",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "pembayaran_transaksi_id",
+                                    "bukti_pembayaran"
+                                ],
+                                "properties": {
+                                    "pembayaran_transaksi_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "bukti_pembayaran": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Bukti pembayaran berhasil diunggah",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    },
+                    "500": {
+                        "description": "Server error"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/paket-umrah/transaksi": {
+            "get": {
+                "tags": [
+                    "PaketUmrah"
+                ],
+                "summary": "Daftar transaksi program paket umrah (khusus superadmin)",
+                "operationId": "60c682d76947ce1a3473ca0cdb9a0e9d",
+                "responses": {
+                    "200": {
+                        "description": "Daftar transaksi program paket umrah",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {}
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/sistem-admin/paket-umrah/create-paket-umrah": {
+            "post": {
+                "tags": [
+                    "PaketUmrah"
+                ],
+                "summary": "Create paket umrah baru",
+                "operationId": "d63e82233b4226af48a2137eb6acfc5c",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "nama_paket": {
+                                        "type": "string",
+                                        "example": "Umrah Reguler November"
+                                    },
+                                    "deskripsi": {
+                                        "type": "string"
+                                    },
+                                    "musim": {
+                                        "properties": {
+                                            "value": {
+                                                "type": "integer"
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    "bintang": {
+                                        "type": "integer"
+                                    },
+                                    "lokasi_keberangkatan": {
+                                        "properties": {
+                                            "value": {
+                                                "type": "integer"
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    "lokasi_tujuan": {
+                                        "properties": {
+                                            "value": {
+                                                "type": "integer"
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    "durasi_total": {
+                                        "type": "integer"
+                                    },
+                                    "jumlah_pax": {
+                                        "type": "integer"
+                                    },
+                                    "destinasi_hotel": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "maskapai": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "fasilitas_tambahan": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "perlengkapan": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "keberangkatan": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "tipe_paket_umrah": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Paket umrah berhasil dibuat",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Paket umrah berhasil dibuat"
+                                        },
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/sistem-admin/paket-umrah/update-paket-umrah/{id}": {
+            "put": {
+                "tags": [
+                    "PaketUmrah"
+                ],
+                "summary": "Update paket umrah",
+                "operationId": "16396f75dfa9a0f64334b1bf3445a5d6",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID paket umrah",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "nama_paket": {
+                                        "type": "string",
+                                        "example": "Umrah Reguler November"
+                                    },
+                                    "deskripsi": {
+                                        "type": "string"
+                                    },
+                                    "nama_musim": {
+                                        "type": "string"
+                                    },
+                                    "bintang": {
+                                        "type": "integer"
+                                    },
+                                    "lokasi_keberangkatan": {
+                                        "type": "string"
+                                    },
+                                    "durasi_total": {
+                                        "type": "integer"
+                                    },
+                                    "jumlah_pax": {
+                                        "type": "integer"
+                                    },
+                                    "destinasi_hotel": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "maskapai": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "fasilitas_tambahan": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "perlengkapan": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "keberangkatan": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "tipe_paket_umrah": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Paket umrah berhasil diupdate",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Paket umrah berhasil diupdate"
+                                        },
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Paket umrah tidak ditemukan"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/paket-umrah/pesan-bundling-edutrip": {
+            "post": {
+                "tags": [
+                    "PaketUmrah"
+                ],
+                "summary": "Pemesanan Paket Umrah + Edutrip (Bundling)",
+                "operationId": "d1d5e676584f058fcd58f196b8092b77",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "nama_lengkap",
+                                    "no_whatsapp",
+                                    "alamat_lengkap",
+                                    "paket_umrah_id",
+                                    "paket_edutrip_id",
+                                    "tanggal_keberangkatan_umrah",
+                                    "tanggal_kunjungan_edutrip"
+                                ],
+                                "properties": {
+                                    "gelar_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "nama_lengkap": {
+                                        "type": "string",
+                                        "example": "Ahmad Santoso"
+                                    },
+                                    "no_whatsapp": {
+                                        "type": "string",
+                                        "example": "08123456789"
+                                    },
+                                    "alamat_lengkap": {
+                                        "type": "string",
+                                        "example": "Jl. Merdeka No. 123"
+                                    },
+                                    "provinsi_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "kota_id": {
+                                        "type": "integer",
+                                        "example": 10
+                                    },
+                                    "kecamatan_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "deskripsi": {
+                                        "type": "string",
+                                        "example": "Pemesanan bundling umrah + edutrip"
+                                    },
+                                    "paket_umrah_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "paket_edutrip_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "tanggal_keberangkatan_umrah": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2025-10-15"
+                                    },
+                                    "tanggal_kunjungan_edutrip": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2025-10-20"
+                                    },
+                                    "jam_kunjungan_edutrip": {
+                                        "type": "string",
+                                        "example": "09:00"
+                                    },
+                                    "jumlah_pax": {
+                                        "type": "integer",
+                                        "example": 10
+                                    },
+                                    "jamaah_data": {
+                                        "type": "array",
+                                        "items": {
+                                            "properties": {
+                                                "nama": {
+                                                    "type": "string"
+                                                },
+                                                "nik": {
+                                                    "type": "string"
+                                                },
+                                                "no_paspor": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Pemesanan bundling Umrah + Edutrip berhasil dibuat",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/jamaah": {
+            "get": {
+                "tags": [
+                    "Jamaah"
+                ],
+                "summary": "Daftar jamaah (user sendiri atau semua untuk superadmin)",
+                "operationId": "bd7424d50b5ec664885970d994471968",
+                "responses": {
+                    "200": {
+                        "description": "Daftar jamaah berhasil diambil",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Jamaah"
+                ],
+                "summary": "Buat jamaah baru",
+                "operationId": "f9852b6ff544088f7f9d169268710488",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "nama_lengkap"
+                                ],
+                                "properties": {
+                                    "nama_lengkap": {
+                                        "type": "string",
+                                        "example": "Ahmad Santoso"
+                                    },
+                                    "nomor_identitas": {
+                                        "type": "string",
+                                        "example": "1234567890123456"
+                                    },
+                                    "foto_identitas": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "nomor_passpor": {
+                                        "type": "string",
+                                        "example": "A1234567"
+                                    },
+                                    "foto_passpor": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Jamaah berhasil dibuat"
+                    },
+                    "422": {
+                        "description": "Validasi gagal"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/jamaah/{jamaah}": {
+            "get": {
+                "tags": [
+                    "Jamaah"
+                ],
+                "summary": "Ambil detail jamaah berdasarkan ID",
+                "operationId": "9a1f55fe717f151c66139c3662a94f89",
+                "parameters": [
+                    {
+                        "name": "jamaah",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detail jamaah berhasil diambil"
+                    },
+                    "403": {
+                        "description": "Akses ditolak"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Jamaah"
+                ],
+                "summary": "Perbarui data jamaah",
+                "operationId": "73afabb9724c45992251513bd2536ab1",
+                "parameters": [
+                    {
+                        "name": "jamaah",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "properties": {
+                                    "nama_lengkap": {
+                                        "type": "string"
+                                    },
+                                    "nomor_identitas": {
+                                        "type": "string"
+                                    },
+                                    "foto_identitas": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "nomor_passpor": {
+                                        "type": "string"
+                                    },
+                                    "foto_passpor": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "is_active": {
+                                        "type": "boolean"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Jamaah berhasil diperbarui"
+                    },
+                    "403": {
+                        "description": "Akses ditolak"
+                    },
+                    "422": {
+                        "description": "Validasi gagal"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Jamaah"
+                ],
+                "summary": "Hapus (soft delete) jamaah",
+                "operationId": "f45031b9a0d5f0c392f2d0fe4402d83a",
+                "parameters": [
+                    {
+                        "name": "jamaah",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Jamaah berhasil dihapus"
+                    },
+                    "403": {
+                        "description": "Akses ditolak"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/utility/gelar": {
+            "get": {
+                "tags": [
+                    "Utility"
+                ],
+                "summary": "Daftar gelar",
+                "operationId": "ba242fe4fa3212895049b356fb1ece7d",
+                "responses": {
+                    "200": {
+                        "description": "Daftar gelar berhasil diambil",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer"
+                                                    },
+                                                    "name": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server error"
+                    }
+                }
+            }
+        },
+        "/api/utility/provinsi": {
+            "get": {
+                "tags": [
+                    "Utility"
+                ],
+                "summary": "Daftar provinsi",
+                "operationId": "bed925850772d7589b1f14774f47902e",
+                "responses": {
+                    "200": {
+                        "description": "Daftar provinsi berhasil diambil",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer"
+                                                    },
+                                                    "name": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server error"
+                    }
+                }
+            }
+        },
+        "/api/utility/kota": {
+            "get": {
+                "tags": [
+                    "Utility"
+                ],
+                "summary": "Daftar kota dalam provinsi",
+                "operationId": "879d8a968da72d99f58f9015f757b397",
+                "parameters": [
+                    {
+                        "name": "provinsi_id",
+                        "in": "query",
+                        "description": "ID provinsi",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Daftar kota berhasil diambil",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer"
+                                                    },
+                                                    "name": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request - missing provinsi_id"
+                    },
+                    "500": {
+                        "description": "Server error"
+                    }
+                }
+            }
+        },
+        "/api/utility/kecamatan": {
+            "get": {
+                "tags": [
+                    "Utility"
+                ],
+                "summary": "Daftar kecamatan dalam kota",
+                "operationId": "a9a457078d4d762828e003fb8211f6ed",
+                "parameters": [
+                    {
+                        "name": "kota_id",
+                        "in": "query",
+                        "description": "ID kota",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Daftar kecamatan berhasil diambil",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer"
+                                                    },
+                                                    "name": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request - missing kota_id"
+                    },
+                    "500": {
+                        "description": "Server error"
+                    }
+                }
+            }
+        },
+        "/api/utility/keberangkatan": {
+            "get": {
+                "tags": [
+                    "Utility"
+                ],
+                "summary": "Daftar keberangkatan dalam paket umrah",
+                "operationId": "f43f647d6e779be8680dc32b6fffe6da",
+                "parameters": [
+                    {
+                        "name": "paket_umrah_id",
+                        "in": "query",
+                        "description": "ID paket umrah",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Daftar keberangkatan berhasil diambil",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer"
+                                                    },
+                                                    "name": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request - missing kota_id"
+                    },
+                    "500": {
+                        "description": "Server error"
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "bearerFormat": "JWT",
+                "scheme": "bearer"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Auth",
+            "description": "Auth"
+        },
+        {
+            "name": "Auth Google",
+            "description": "Auth Google"
+        },
+        {
+            "name": "LandArrangement",
+            "description": "LandArrangement"
+        },
+        {
+            "name": "Mitra",
+            "description": "Mitra"
+        },
+        {
+            "name": "PaketEdutrip",
+            "description": "PaketEdutrip"
+        },
+        {
+            "name": "PaketHaji",
+            "description": "PaketHaji"
+        },
+        {
+            "name": "PaketUmrah",
+            "description": "PaketUmrah"
+        },
+        {
+            "name": "Jamaah",
+            "description": "Jamaah"
+        },
+        {
+            "name": "Utility",
+            "description": "Utility"
+        }
+    ]
+}

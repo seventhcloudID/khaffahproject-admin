@@ -1,7 +1,12 @@
+"use client";
+
 import { Card, CardContent } from "@/components/ui/card";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 const CardKomponenMitra = () => {
+  const router = useRouter();
+
   const items = [
     {
       name: "Hotel",
@@ -68,6 +73,25 @@ const CardKomponenMitra = () => {
       icon: "/svg/museum.svg",
     },
   ];
+
+  const handleClick = (name: string) => {
+    if (name === "Hotel") {
+      router.push("/mitra/komponen/hotel");
+    }
+    if (name === "Tiket") {
+      router.push("/mitra/komponen/tiket");
+    }
+    if (name === "Visa") {
+      router.push("/mitra/komponen/visa");
+    }
+    if (name === "Badal Haji") {
+      router.push("/mitra/komponen/badal_haji");
+    }
+    if (name === "Badal Umrah") {
+      router.push("/mitra/komponen/badal_umrah");
+    }
+  };
+
   return (
     <div className="space-y-4">
       <div>
@@ -76,6 +100,7 @@ const CardKomponenMitra = () => {
             <Card
               key={index}
               className="group hover:shadow-2xl transition-all duration-700 cursor-pointer"
+              onClick={() => handleClick(item.name)}
             >
               <CardContent className="flex flex-col items-center gap-3 py-4">
                 <Image

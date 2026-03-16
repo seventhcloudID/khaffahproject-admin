@@ -138,6 +138,10 @@ export default function JamaahDetailPage() {
   }
 
   if (isError || !initial) {
+    const apiMsg =
+      (error as { response?: { data?: { message?: string } } })?.response?.data?.message;
+    const displayMsg =
+      typeof apiMsg === "string" ? apiMsg : (error as Error)?.message ?? "Data tidak ditemukan atau akses ditolak.";
     return (
       <div className="space-y-4">
         <div className="flex items-center justify-between">
@@ -152,7 +156,7 @@ export default function JamaahDetailPage() {
         <div className="rounded-xl border border-border bg-card p-6 text-center">
           <h2 className="text-base font-semibold">Jemaah tidak ditemukan</h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            {(error as Error)?.message ?? "Data tidak ditemukan atau akses ditolak."}
+            {displayMsg}
           </p>
         </div>
       </div>

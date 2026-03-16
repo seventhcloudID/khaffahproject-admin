@@ -11,6 +11,13 @@ export interface SnapshotTanggalProgram {
   returnDate?: string | null;
 }
 
+/** Satu baris detail kamar (Komponen Hotel / request-products) */
+export interface SnapshotRoomDetail {
+  roomTypeName?: string | null;
+  qty?: number;
+  hargaPerMalam?: number | null;
+}
+
 /** Data hotel dari form product-request */
 export interface SnapshotDataHotel {
   hotelMekkah?: string | null;
@@ -22,6 +29,8 @@ export interface SnapshotDataHotel {
   lokasiHotelMekkah?: string | null;
   lokasiHotelMadinah?: string | null;
   kuotaKamar?: number | null;
+  /** Detail kamar per tipe (Komponen Hotel): roomTypeName, qty, hargaPerMalam */
+  room_details?: SnapshotRoomDetail[] | null;
 }
 
 /** Data keberangkatan dari form product-request */

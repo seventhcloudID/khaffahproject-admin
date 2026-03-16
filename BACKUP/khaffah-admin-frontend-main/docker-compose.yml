@@ -1,0 +1,37 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: khaffah-admin-frontend
+    restart: unless-stopped
+    ports:
+      - "3000"
+    networks:
+      - khaffah_admin_network
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: khaffah_admin_cloudflared
+    restart: unless-stopped
+    depends_on:
+      - app
+    command: tunnel --no-autoupdate run --token ${CLOUDFLARE_TUNNEL_TOKEN}
+    environment:
+      - TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN}
+    networks:
+      - khaffah_admin_network
+    volumes:
+      - ./cloudflared:/etc/cloudflared
+    # profiles:
+      # - cloudflare
+    healthcheck:
+      test: ['CMD-SHELL', 'wget --quiet --tries=1 --spider http://app:3000/healthz || exit 1']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+networks:
+  khaffah_admin_network:
+    driver: bridge

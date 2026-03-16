@@ -71,7 +71,7 @@ export default function PaymentStep1({ order, onNext }: PaymentStep1Props) {
             </div>
             <div className="flex justify-between items-center pt-2 border-t border-gray-100">
               <span className="font-bold text-gray-900">Total Harga</span>
-              <span className="text-16 font-bold text-orange-500">
+              <span className="text-16 font-bold text-khaffah-secondary">
                 {formatRupiah(totalBiaya)}
               </span>
             </div>
@@ -88,11 +88,11 @@ export default function PaymentStep1({ order, onNext }: PaymentStep1Props) {
             Anda dapat membayar sebagian biaya di awal dan melunasi sisanya
             nanti.
           </p>
-          <div className="space-y-3">
+            <div className="space-y-3">
             {DP_OPTIONS.map((opt) => (
               <label
                 key={opt.value}
-                className="flex items-start gap-3 p-3 rounded-xl border border-gray-200 hover:border-teal-300 cursor-pointer has-[:checked]:border-teal-500 has-[:checked]:bg-teal-50/50"
+                className="flex items-start gap-3 p-3 rounded-xl border border-gray-200 hover:border-khaffah-primary/40 cursor-pointer has-[:checked]:border-khaffah-primary has-[:checked]:bg-khaffah-primary/5"
               >
                 <input
                   type="radio"
@@ -100,19 +100,19 @@ export default function PaymentStep1({ order, onNext }: PaymentStep1Props) {
                   value={opt.value}
                   checked={method === opt.value}
                   onChange={() => setMethod(opt.value)}
-                  className="mt-1 w-4 h-4 border-gray-300 text-teal-600 focus:ring-teal-500"
+                  className="mt-1 w-4 h-4 border-gray-300 text-khaffah-primary focus:ring-khaffah-primary"
                 />
                 <div className="flex-1">
                   <span className="text-14 font-medium text-gray-900">
                     {opt.value === "lunas" ? "Bayar Lunas" : "Pembayaran Uang Muka (DP)"}
                   </span>
                   {opt.value !== "lunas" && (
-                    <p className="text-14 font-medium text-orange-500 mt-0.5">
+                    <p className="text-14 font-medium text-khaffah-secondary mt-0.5">
                       {formatRupiah(opt.nominal)}
                     </p>
                   )}
                   {opt.value === "lunas" && (
-                    <p className="text-14 font-medium text-orange-500 mt-0.5">
+                    <p className="text-14 font-medium text-khaffah-secondary mt-0.5">
                       Bayar Penuh
                     </p>
                   )}
@@ -131,7 +131,7 @@ export default function PaymentStep1({ order, onNext }: PaymentStep1Props) {
             </div>
           )}
           <Button
-            className="w-full h-12 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-14 mt-6"
+            className="w-full h-12 rounded-xl bg-khaffah-primary hover:bg-khaffah-primary/90 text-white font-bold text-14 mt-6"
             onClick={handleNext}
           >
             Lanjutkan Pembayaran

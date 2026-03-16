@@ -67,7 +67,8 @@ const UmrahPage = () => {
 
   // Combine loading states. Saat !mounted (SSR + initial client) selalu "loading"
   // agar HTML server dan client sama dan tidak terjadi hydration mismatch.
-  const isLoading = !mounted || apiLoading || !!error;
+  const isLoading = !mounted || apiLoading;
+  const isError = !!error;
 
   return (
     <div className="min-h-screen">
@@ -82,8 +83,15 @@ const UmrahPage = () => {
               ? "Paket umrah"
               : isLoading
                 ? "Memuat data..."
-                : `Menampilkan ${filteredProducts.length} paket umrah${activeFilter !== 'Semua' ? ` dalam kategori "${activeFilter}"` : ''}`}
+                : isError
+                  ? "Gagal memuat daftar paket."
+                  : `Menampilkan ${filteredProducts.length} paket umrah${activeFilter !== 'Semua' ? ` dalam kategori "${activeFilter}"` : ''}`}
           </p>
+          {mounted && isError && (
+            <p className="mt-2 text-sm text-amber-600">
+              Coba refresh halaman atau periksa koneksi Anda.
+            </p>
+          )}
         </div>
         
         {/* Stats Summary */}
@@ -141,7 +149,7 @@ const UmrahPage = () => {
         
         {/* Product Table */}
         <ProductTable 
-          products={filteredProducts} 
+          products={isError ? [] : filteredProducts} 
           isLoading={isLoading}
           itemsPerPage={10}
         />

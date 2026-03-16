@@ -54,9 +54,12 @@
           :loading="loadSearch"
         >
           <Column field="no" header="No" style="width: 50px" />
-          <Column field="kode_iata" header="Kode IATA" style="width: 100px" />
+          <Column field="kode_iata" header="Kode IATA" style="width: 90px" />
           <Column field="nama_maskapai" header="Nama Maskapai" />
-          <Column field="negara_asal" header="Negara Asal" />
+          <Column field="negara_asal" header="Negara Asal" style="width: 120px" />
+          <Column field="jam_keberangkatan" header="Jam Keberangkatan" style="width: 120px" />
+          <Column field="jam_sampai" header="Jam Sampai" style="width: 100px" />
+          <Column field="kelas_penerbangan" header="Kelas Penerbangan" style="width: 140px" />
           <Column header="Status" style="width: 90px">
             <template #body="slotProps">
               <span :class="slotProps.data.is_active ? 'text-green-600' : 'text-gray-500'">
@@ -99,11 +102,18 @@
             <span>Edit</span>
           </RouterLink>
           <button
-            @click="deleteData(activeDropdownRow)"
+            @click="nonaktifkanData(activeDropdownRow)"
             class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
           >
-            <i class="fas fa-trash w-4 text-red-600 mr-2"></i>
+            <i class="fas fa-ban w-4 text-amber-600 mr-2"></i>
             <span>Nonaktifkan</span>
+          </button>
+          <button
+            @click="hapusPermanenData(activeDropdownRow)"
+            class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+          >
+            <i class="fas fa-trash w-4 text-red-600 mr-2"></i>
+            <span>Hapus permanen</span>
           </button>
         </div>
       </div>
@@ -163,15 +173,27 @@ const toggleDropdown = (id: number | string, event: MouseEvent, row?: any) => {
   nextTick(() => document.addEventListener('click', handleClickOutside))
 }
 
-const deleteData = async (data: any) => {
+const nonaktifkanData = async (data: any) => {
   closeDropdown()
-  if (!confirm(`Nonaktifkan maskapai "${data.nama_maskapai}"?`)) return
+  if (!confirm(`Nonaktifkan maskapai "${data.nama_maskapai}"? Data tetap tersimpan dan bisa diaktifkan lagi.`)) return
   try {
     await api.delete(`/sistem-admin/master-maskapai/${data.id}`)
     fetchData()
   } catch (err) {
     console.error(err)
     alert('Gagal menonaktifkan maskapai')
+  }
+}
+
+const hapusPermanenData = async (data: any) => {
+  closeDropdown()
+  if (!confirm(`Hapus permanen maskapai "${data.nama_maskapai}" (${data.kode_iata || '-'})? Data tidak dapat dikembalikan.`)) return
+  try {
+    await api.delete(`/sistem-admin/master-maskapai/${data.id}/permanent`)
+    fetchData()
+  } catch (err) {
+    console.error(err)
+    alert('Gagal menghapus maskapai. Mungkin masih dipakai di paket.')
   }
 }
 

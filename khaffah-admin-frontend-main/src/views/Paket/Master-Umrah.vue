@@ -43,6 +43,9 @@
             <div v-for="row in mobileCardsSlice" :key="row.id" class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
               <h3 class="font-semibold text-gray-900 text-sm mb-1 truncate">{{ row.nama_paket }}</h3>
               <p class="text-xs text-gray-500 mb-1">{{ row.nama_musim || '-' }}</p>
+              <p class="text-xs text-gray-600 mb-1">
+                Terjual: <strong>{{ row.paket_terjual ?? 0 }}</strong> · Sisa: <strong>{{ row.sisa_paket ?? 0 }}</strong>
+              </p>
               <p class="text-sm text-gray-700 font-medium">
                 {{ H.formatRupiah(row.harga_termurah) }} - {{ H.formatRupiah(row.harga_termahal) }}
               </p>
@@ -88,6 +91,16 @@
           <Column field="no" header="No" style="width: 50px" />
           <Column field="nama_paket" header="Nama Paket" />
           <Column field="nama_musim" header="Musim" style="width: 100px" />
+          <Column field="paket_terjual" header="Terjual" style="width: 80px" bodyClass="text-center">
+            <template #body="slotProps">
+              {{ slotProps.data.paket_terjual ?? 0 }}
+            </template>
+          </Column>
+          <Column field="sisa_paket" header="Sisa Paket" style="width: 90px" bodyClass="text-center">
+            <template #body="slotProps">
+              {{ slotProps.data.sisa_paket ?? 0 }}
+            </template>
+          </Column>
           <Column header="Range Harga" style="min-width: 180px">
             <template #body="slotProps">
               {{ H.formatRupiah(slotProps.data.harga_termurah) }} - {{ H.formatRupiah(slotProps.data.harga_termahal) }}

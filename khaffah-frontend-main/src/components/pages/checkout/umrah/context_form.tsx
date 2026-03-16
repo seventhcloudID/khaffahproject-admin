@@ -24,6 +24,7 @@ import { useMe } from "@/query/auth";
 import { documentById } from "@/lib/utils";
 import { productNameToSlug } from "@/lib/slug";
 import { toast } from "sonner";
+import Link from "next/link";
 
 const ContextForm = () => {
   const params = useParams();
@@ -33,20 +34,24 @@ const ContextForm = () => {
   const searchParams = useSearchParams();
   const isMitraCheckout = pathname?.startsWith("/mitra") ?? false;
   const { data: userData } = useMe();
-  const { data: umrahData } = useUmrah();
+  const { data: umrahData, isLoading: umrahLoading } = useUmrah();
   const { mutateAsync: submitPesan, isPending } = useCheckoutUmrah();
   const [api, setApi] = useState<CarouselApi>();
 
-  // paket_umrah_id: dari URL query dulu, lalu cocokkan slug ke list paket, terakhir fallback
+  const packages = umrahData?.data?.data ?? [];
+  const matchedBySlug = useMemo(
+    () => (slug ? packages.find((pkg) => productNameToSlug(pkg.nama_paket) === slug) : undefined),
+    [slug, packages]
+  );
+
+  // paket_umrah_id: dari URL query dulu, lalu dari slug. Tidak pakai fallback ke id 1 agar slug invalid tidak memesan paket salah.
   const paketUmrahId = useMemo(() => {
     const qId = searchParams.get("paket_umrah_id");
     if (qId) return Number(qId);
-    const packages = umrahData?.data?.data || [];
-    const matched = packages.find(
-      (pkg) => productNameToSlug(pkg.nama_paket) === slug
-    );
-    return matched?.id ?? 1;
-  }, [slug, umrahData, searchParams]);
+    return matchedBySlug?.id ?? null;
+  }, [searchParams, matchedBySlug]);
+
+  const slugNotFound = !umrahLoading && slug && packages.length >= 0 && !matchedBySlug && !searchParams.get("paket_umrah_id");
 
   const form = useForm({
     resolver: zodResolver(isMitraCheckout ? umrahProductSchemaMitra : umrahProductSchema),
@@ -60,7 +65,7 @@ const ContextForm = () => {
       kecamatan_id: 0,
       alamat_lengkap: "",
       deskripsi: "",
-      produk_id: paketUmrahId,
+      produk_id: paketUmrahId ?? 0,
       keberangkatan_id: 0,
       paket_umrah_tipe_id: 0,
       jumlah_bayar: 1,
@@ -201,6 +206,37 @@ const ContextForm = () => {
     // api.internalEngine().dragHandler.destroy();
   }, [api]);
 
+  if (slugNotFound) {
+    return (
+      <Screen className="sm:pb-14" id="top">
+        <div className="min-h-[50vh] flex flex-col items-center justify-center px-4 py-12">
+          <div className="text-center space-y-4 max-w-md">
+            <p className="text-xl font-semibold text-gray-800">Paket tidak ditemukan</p>
+            <p className="text-gray-600">
+              URL paket tidak valid atau paket tidak tersedia. Silakan pilih paket dari daftar.
+            </p>
+            <Link
+              href="/mitra/buat-pesanan"
+              className="inline-flex items-center justify-center px-5 py-2.5 rounded-xl font-medium bg-khaffah-primary text-white hover:opacity-90"
+            >
+              Kembali ke Daftar Paket
+            </Link>
+          </div>
+        </div>
+      </Screen>
+    );
+  }
+
+  if (paketUmrahId == null) {
+    return (
+      <Screen className="sm:pb-14" id="top">
+        <div className="min-h-[50vh] flex items-center justify-center">
+          <p className="text-gray-500">Memuat...</p>
+        </div>
+      </Screen>
+    );
+  }
+
   return (
     <Screen className="sm:pb-14" id="top">
       <Stepper api={api} />
@@ -216,6 +252,7 @@ const ContextForm = () => {
                   api={api}
                   onConfirm={onStep2Confirm}
                   isSubmitting={isPending}
+                  isMitraCheckout={isMitraCheckout}
                 />
               </CarouselItem>
               <CarouselItem>

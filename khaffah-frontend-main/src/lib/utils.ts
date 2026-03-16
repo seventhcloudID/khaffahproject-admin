@@ -88,7 +88,20 @@ export const formatRupiah = (value: number | string) => {
     style: "currency",
     currency: "IDR",
     minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+    useGrouping: true,
   }).format(parseNumberLoose(value));
+};
+
+/** Format angka dengan pemisah ribuan titik (contoh: 2.000.000) untuk tampilan di input/detail */
+export const formatNumberId = (value: number | string) => {
+  if (value === null || value === undefined || value === "") return "";
+  const n = parseNumberLoose(value);
+  return new Intl.NumberFormat("id-ID", {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+    useGrouping: true,
+  }).format(n);
 };
 
 export function formatTanggal(tanggal: string): string {

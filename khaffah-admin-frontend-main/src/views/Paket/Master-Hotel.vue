@@ -2,6 +2,11 @@
   <div class="columns">
     <Card class="column is-12" elevated radius="smooth" padding="md">
       <h1 class="text-xl font-medium mb-4">Master Hotel</h1>
+      <p class="text-sm text-gray-500 mb-4">
+        Data hotel di sini adalah <strong>satu sumber data</strong> untuk paket (LA Umrah, dll.) dan untuk
+        <strong>Komponen Hotel</strong> (mitra bisa pesan hotel tanpa paket). Untuk mengatur hotel mana yang tampil di Komponen Hotel dan isi paket kostumisasi, gunakan
+        <RouterLink to="/Paket/Master-LA-Umrah?tab=hotel" class="text-[#007b6f] hover:underline font-medium">Master LA Umrah → Tab Hotel</RouterLink>.
+      </p>
 
       <div class="columns flex-wrap gap-4 mb-4">
         <div class="column is-2">

@@ -240,7 +240,7 @@ const ContextForm = ({ isMitraContext = false }: ContextFormProps) => {
         headers: { Authorization: `Bearer ${token}` },
       });
     },
-    // Setelah ajukan paket custom: redirect ke /mitra/pesanan/{id} kalau isMitraContext, else /account/orders/{id}
+    // Setelah ajukan paket custom: redirect ke halaman pembayaran (pay)
     onSuccess: (res) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const anyRes: any = res;
@@ -255,7 +255,7 @@ const ContextForm = ({ isMitraContext = false }: ContextFormProps) => {
 
       const basePath = isMitraContext ? "/mitra/pesanan" : "/account/orders";
       if (transaksiId) {
-        router.push(`${basePath}/${transaksiId}`);
+        router.push(`${basePath}/${transaksiId}/pay`);
       } else {
         router.push(basePath);
       }

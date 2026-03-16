@@ -8,7 +8,17 @@ import Screen from "@/components/layout/screen";
 import { Icon } from "@/components/icon";
 import { useUmrahById, useUmrah } from "@/query/umrah";
 import { productNameToSlug } from "@/lib/slug";
+import { getServerApiBaseUrl } from "@/lib/api-base";
 import type { Keberangkatan } from "@/typing/umrah-package-detail";
+
+/** URL ikon dari API (path relatif) → full URL ke backend. */
+function toAbsoluteIconUrl(url: string): string {
+  if (!url) return url;
+  if (url.startsWith("http")) return url;
+  const base = getServerApiBaseUrl().replace(/\/+$/, "");
+  const path = url.replace(/^\//, "");
+  return `${base}/${path}`;
+}
 
 interface ProductDetailProps {
   paketUmrahId?: string | number;
@@ -122,7 +132,7 @@ const ProductDetail = ({ paketUmrahId }: ProductDetailProps) => {
                   return (
                     <div key={departure.id}>
                       <div className="flex items-center gap-4">
-                        <Icon name="Calender" className="size-5 md:size-4 lg:size-6" />
+                        <Icon name="Calender" className="fill-khaffah-neutral-mid size-5 md:size-4 lg:size-6" />
                         <p className="text-xs md:text-sm font-bold">
                           {tanggalBerangkat} - {tanggalPulang}
                         </p>
@@ -219,14 +229,9 @@ const ProductDetail = ({ paketUmrahId }: ProductDetailProps) => {
               return (
                 <div key={facilityType.jenis_id} className="flex items-center gap-4">
                   {facilityType.icon?.url ? (
-                    // <img
-                    //   src={facilityType.icon.url}
-                    //   alt={facilityType.icon.nama}
-                    //   className="size-5 md:size-4 lg:size-6 object-contain"
-                    // />
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
-                      src={facilityType.icon.url}
+                      src={toAbsoluteIconUrl(facilityType.icon.url)}
                       alt={facilityType.icon.nama}
                       className="size-5 md:size-4 lg:size-6 object-contain"
                     />
@@ -261,14 +266,9 @@ const ProductDetail = ({ paketUmrahId }: ProductDetailProps) => {
               return (
                 <div key={equipmentType.jenis_id} className="flex items-center gap-4">
                   {equipmentType.icon?.url ? (
-                    // <img
-                    //   src={equipmentType.icon.url}
-                    //   alt={equipmentType.icon.nama}
-                    //   className="size-5 md:size-4 lg:size-6 object-contain"
-                    // />
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
-                      src={equipmentType.icon.url}
+                      src={toAbsoluteIconUrl(equipmentType.icon.url)}
                       alt={equipmentType.icon.nama}
                       className="size-5 md:size-4 lg:size-6 object-contain"
                     />

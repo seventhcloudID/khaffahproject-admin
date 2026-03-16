@@ -234,7 +234,7 @@
           @complete="fetchStatusTransaksi($event)"
           optionLabel="label"
           :dropdown="true"
-          :minLength="3"
+          :minLength="0"
           appendTo="body"
           field="label"
           placeholder="Pilih Status Transaksi..."
@@ -408,7 +408,7 @@ const updateStatus = (id: number | string) => {
   idTransaksiUpdate.value = Number(id)
   selectedStatusTransaksi.value = null
   ModalUpdateStatus.value = true
-  fetchStatusTransaksi({ query: '' })
+  fetchStatusTransaksi()
 }
 
 const updateStatusPembayaran = (id: number | string) => {
@@ -416,17 +416,17 @@ const updateStatusPembayaran = (id: number | string) => {
   idTransaksiUpdatePembayaran.value = Number(id)
   selectedStatusPembayaran.value = null
   ModalUpdateStatusPembayaran.value = true
-  fetchStatusPembayaran({ query: '' })
+  fetchStatusPembayaran()
 }
 
-const fetchStatusPembayaran = async (filter: any) => {
+const fetchStatusPembayaran = async (_filter?: { query?: string }) => {
   try {
     const response = await api.get(
-      `/sistem-admin/utility/dropdown/status_pembayaran_m?select=id,nama_status&param_search=nama_status&query=${(filter?.query ?? '') || ''}&limit=20`,
-    )
-    const raw = (response as any)?.data ?? response
-    const arr = Array.isArray(raw) ? raw : []
-    d_StatusPembayaran.value = arr.map((x: any) => ({
+      `/sistem-admin/utility/dropdown/status_pembayaran_m?select=id,nama_status&limit=50`,
+    ) as { data?: unknown[] | { data?: unknown[] } }
+    const body = response?.data ?? response
+    const arr = Array.isArray(body) ? body : (body && typeof body === 'object' && 'data' in body ? (body as { data?: unknown[] }).data : []) ?? []
+    d_StatusPembayaran.value = (Array.isArray(arr) ? arr : []).map((x: any) => ({
       id: x.value ?? x.id,
       label: x.label ?? x.nama_status ?? `#${x.value ?? x.id}`,
       value: x.value ?? x.id,
@@ -454,16 +454,18 @@ const handleUpdatePembayaran = async () => {
   try {
     const res = await api.post('/sistem-admin/transaksi/update-status-pembayaran', {
       id: idTransaksiUpdatePembayaran.value,
-      status_pembayaran_id: statusId,
+      status_pembayaran_id: Number(statusId),
     })
-    if (res && (res as any).status === true) {
+    const body = res as { status?: boolean; message?: string }
+    if (body?.status === true) {
       ModalUpdateStatusPembayaran.value = false
       selectedStatusPembayaran.value = null
       idTransaksiUpdatePembayaran.value = null
       fetchDataByStatus(activeTab.value)
       updateCount()
+      alert('Status pembayaran berhasil diubah.')
     } else {
-      alert((res as any)?.message ?? 'Update status pembayaran gagal.')
+      alert(body?.message ?? 'Update status pembayaran gagal.')
     }
   } catch (error: any) {
     const msg =
@@ -729,12 +731,18 @@ const exportExcel = () => {
   XLSXStyle.writeFile(workbook, fileName)
 }
 
-const fetchStatusTransaksi = async (filter: any) => {
+const fetchStatusTransaksi = async (filter?: { query?: string }) => {
   try {
-    const response = await useApi().get(
-      `/sistem-admin/utility/dropdown/status_transaksi_m?select=id,nama_status&param_search=nama_status&query=${filter.query}&limit=10`,
-    )
-    d_StatusTransaksi.value = response.data
+    const response = await api.get(
+      `/sistem-admin/utility/dropdown/status_transaksi_m?select=id,nama_status&limit=50`,
+    ) as { data?: unknown[] | { data?: unknown[] } }
+    const body = response?.data ?? response
+    const arr = Array.isArray(body) ? body : (body && typeof body === 'object' && 'data' in body ? (body as { data?: unknown[] }).data : []) ?? []
+    d_StatusTransaksi.value = (Array.isArray(arr) ? arr : []).map((x: any) => ({
+      id: x.value ?? x.id,
+      label: x.label ?? x.nama_status ?? `#${x.value ?? x.id}`,
+      value: x.value ?? x.id,
+    }))
   } catch (error) {
     console.error('Error fetching status transaksi:', error)
     d_StatusTransaksi.value = []
@@ -753,9 +761,14 @@ const handleUpdate = async () => {
   }
 
   try {
+    const statusId = selectedStatusTransaksi.value?.id ?? selectedStatusTransaksi.value?.value ?? null
+    if (!statusId) {
+      alert('Status transaksi tidak valid.')
+      return
+    }
     const payload = {
       id: idTransaksiUpdate.value,
-      status_id: selectedStatusTransaksi.value?.id ?? selectedStatusTransaksi.value?.value ?? null,
+      status_id: statusId,
     }
     const res = await api.post('/sistem-admin/transaksi/update-status-transaksi', payload) as unknown as Record<string, unknown>
     if (res && (res.status === true || res.status === 'success' || res.status === 1)) {

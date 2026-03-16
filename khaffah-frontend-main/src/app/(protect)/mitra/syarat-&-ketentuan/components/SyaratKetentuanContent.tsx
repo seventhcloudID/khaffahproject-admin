@@ -366,8 +366,8 @@ export default function SyaratKetentuanContent() {
 
               <h3 className="mt-4 font-semibold">Kontak Keamanan</h3>
               <ul className="list-disc pl-5 mt-2 text-slate-700">
-                <li>Email: security@contohwisata.co.id</li>
-                <li>Telepon: 021-555-0456 (Support Teknis)</li>
+                <li>Email: safarkhadamat@gmail.com</li>
+                <li>WhatsApp / Telepon: +62 896 7777 1070 (Support Teknis)</li>
               </ul>
               <p className="text-right text-12 font-semibold text-khaffah-primary mt-10">
                 Terakhir diperbarui: 15 Juli 2025

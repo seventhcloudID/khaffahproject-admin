@@ -63,7 +63,12 @@ export function StatsCards({
           </div>
           <div className="mt-1 flex items-baseline gap-3">
             <p className="text-[28px] font-semibold text-slate-900">{s.value}</p>
-            <span className="text-[12px] text-slate-500">{s.hint} ↗</span>
+            <span className="text-[12px] text-slate-500">
+              {s.hint}
+              {s.trend === "up" && " ↗"}
+              {s.trend === "down" && " ↘"}
+              {!s.trend && " −"}
+            </span>
           </div>
           <p className="mt-2 text-[11px] text-slate-500">
             Jumlah seluruh data terkait metrik ini di akun mitra.
